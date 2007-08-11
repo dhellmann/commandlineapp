@@ -1,0 +1,2 @@
+include ChangeLog
+include test_CommandLineApp.py
