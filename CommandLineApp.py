@@ -137,6 +137,7 @@ class CommandLineApp:
     def __init__(self, commandLineOptions=sys.argv[1:]):
         "Initialize CommandLineApp."
         self.command_line_options = commandLineOptions
+        self.supported_options = self.scanForOptions()
         return
 
     def main(self, *args):
@@ -148,9 +149,32 @@ class CommandLineApp:
         """
         pass
 
+    def handleInterrupt(self):
+        """Called when the program is interrupted via Control-C
+        or SIGINT.  Returns exit code.
+        """
+        sys.stderr.write('Canceled by user.\n')
+        return 1
+
+    def handleMainException(self, err):
+        """Invoked when there is an error in the main() method.
+        """
+        if self.debugging:
+            import traceback
+            traceback.print_exc()
+        else:
+            self.errorMessage(str(err))
+        return 1
+
     ##
     ## DEFAULT OPTIONS
     ##
+
+    debugging = False
+    def optionHandler_debug(self):
+        "Set debug mode to see tracebacks."
+        self.debugging = True
+        return
 
     _run_main = True
     def optionHandler_h(self):
@@ -165,9 +189,10 @@ class CommandLineApp:
         self._run_main = False
         return
 
-    def optionHandler_q(self):
+    def optionHandler_quiet(self):
         'Turn on quiet mode.'
         self.verbose_level = 0
+        return
                 
     verbose_level = 1
     def optionHandler_v(self):
@@ -176,6 +201,14 @@ class CommandLineApp:
         The default is 1.
         """
         self.verbose_level = self.verbose_level + 1
+        self.statusMessage('New verbose level is %d' % self.verbose_level,
+                           3)
+        return
+
+    def optionHandler_verbose(self, level=1):
+        """Set the verbose level.
+        """
+        self.verbose_level = int(level)
         self.statusMessage('New verbose level is %d' % self.verbose_level,
                            3)
         return
@@ -191,7 +224,7 @@ class CommandLineApp:
         This method should not need to be overridden, if the main()
         method is defined.
         """
-        self.supported_options = self.scanForOptions()
+        # Process the options supported and given
         options = {}
         for info in self.supported_options:
             options[ info.switch ] = info
@@ -213,22 +246,20 @@ class CommandLineApp:
                 else:
                     method()
 
-            # Call the subclass main method
+            # Perform the primary action for this application,
+            # unless one of the options has disabled it.
             if self._run_main:
                 main_args = tuple(remaining_args)
                 exit_code = self.main(*main_args)
 
         except KeyboardInterrupt:
-            try:
-                self.interruptHandler()
-            except AttributeError:
-                sys.stderr.write('Cancelled by user.\n')
-                pass
-            exit_code = 1
+            exit_code = self.handleInterrupt()
+
         except SystemExit, msg:
             exit_code = msg.args[0]
-        except:
-            exit_code = self.handleMainException()
+
+        except Exception, err:
+            exit_code = self.handleMainException(err)
             
         if self.force_exit:
             sys.exit(exit_code)
@@ -273,13 +304,6 @@ class CommandLineApp:
             raise
         return (parsed_options, remaining_args)
 
-    def handleMainException(self):
-        """Invoked when there is an error in the main() method.
-        """
-        import traceback
-        traceback.print_exc()
-        return 1
-
     def _groupOptionAliases(self):
         """Return a sequence of tuples containing
         (option_names, option_defs)
@@ -312,8 +336,12 @@ class CommandLineApp:
         for option in options:
             options_text_parts = [ option.switch ]
             if option.arg_name:
+                if option.is_long:
+                    options_text_parts.append('=')
+                else:
+                    options_text_parts.append(' ')
                 options_text_parts.append(option.arg_name)
-            option_texts.append( ' '.join(options_text_parts) )
+            option_texts.append( ''.join(options_text_parts) )
         return ', '.join(option_texts)
     
     def getSimpleSyntaxHelpString(self):    
@@ -472,7 +500,6 @@ class CommandLineApp:
                 output = sys.stderr
             else:
                 output = sys.stdout
-            #output.write('%s: %s\n' % (self._app_name, msg))
             output.write(str(msg))
             if newline:
                 output.write('\n')
@@ -483,7 +510,8 @@ class CommandLineApp:
     
     def errorMessage(self, msg=''):
         'Print a message as an error.'
-        self.statusMessage('ERROR: %s\n' % msg, 0)
+        self.statusMessage('ERROR: %s\n' % msg, verbose_level=0, error=True)
+        return
 
 
 if __name__ == '__main__':

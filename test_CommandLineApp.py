@@ -43,96 +43,6 @@ from CommandLineApp import *
 # Module
 #
 
-class TestApp(CommandLineApp):
-    """    This is a simple test application.
-
-    It defines several optionHandler methods to handle
-    some example options.  One option of each type is
-    handled by an example.
-
-    The __doc__ string for the class should contain
-    the info about how to use the application. """
-
-    examplesDescription = \
-"""    a description of how to use the program 
-    in various ways goes here.
-"""                
-
-    argumentsDescription = \
-"""    a description of other arguments goes here
-"""
-
-    defaultLongFormOption='<default value>'
-
-    force_exit = 0
-
-    def optionHandler_a(self, optValue):
-        'get a value for a'
-        print '%s: handling a: %s' % (self.__class__.__name__, optValue)
-
-    def optionHandler_b(self):
-        'toggle the value of b'
-        print '%s: handling b' % (self.__class__.__name__,)
-
-    def optionHandler_long_form_option(self):
-        'boolean option'
-        print '%s: handling long-form-option' % (self.__class__.__name__,)
-
-    def optionHandler_long_form_with_value(self, optValue):
-        """First line of help.
-            get a value for long form option
-
-            Default:<manually inserted>"""
-        print '%s: handling long-form-with-value: %s' % (self.__class__.__name__,
-                                 optValue)
-
-    def optionHandler_report(self, reportName):
-        """Test options with same prefix.
-        """
-        self.statusMessage('REPORT: %s' % reportName)
-        return
-
-    def optionHandler_report_group(self, reportGroupName):
-        """Test options with same prefix.
-        """
-        self.statusMessage('REPORT_GROUP: %s' % reportGroupName)
-        return
-
-    def optionHandler_reportgroup(self, reportGroupName):
-        """Test options with same prefix.
-        """
-        self.statusMessage('REPORTGROUP: %s' % reportGroupName)
-        return
-
-    def main(self, *args):
-        'main loop'
-        print '%s: LEFT OVERS: ' % (self.__class__.__name__,), self.remainingOpts
-
-
-class SubClassTestApp(TestApp):
-    'new doc string'
-
-    def optionHandler_a(self, newA):
-        'Doc string for SubClassTestApp'
-        print 'New A:', newA
-        TestApp.optionHandler_a(self, newA)
-
-    def optionHandler_z(self):
-        'Doc string for SubClassTestApp'
-        print '%s -z' % self.__class__.__name__
-
-    def optionHandler_option_list(self, optionList):
-        'Doc string for SubClassTestApp'
-        if type(optionList) == type([]):
-            print '%s -z list: ' % self.__class__.__name__, optionList
-        else:
-            print '%s -z string: %s' % (self.__class__.__name__, optionList)
-
-    def main(self, *args):
-        apply(TestApp.main, (self,) + args)
-        raise Exception('not an error')
-
-
 class CLATestCase(unittest.TestCase):
 
     def testScanForOptions(self):
@@ -153,13 +63,15 @@ class CLATestCase(unittest.TestCase):
         self.failUnlessEqual(
             test_options, 
             [('--alias', 'alias', 'options', None, True),
+             ('--debug', 'debug', None, None, False),
              ('-h', 'h', None, None, False),
              ('--help', 'help', None, None, False),
              ('--kwd', 'kwd', 'default', 'value', False),
              ('--multi-args', 'multi_args', 'options', None, True),
              ('-n', 'n', None, None, False),
-             ('-q', 'q', None, None, False),
+             ('--quiet', 'quiet', None, None, False),
              ('-v', 'v', None, None, False),
+             ('--verbose', 'verbose', 'level', 1, False),
              ])
         return
 
@@ -241,6 +153,118 @@ class CLATestCase(unittest.TestCase):
         new_test = CLALongOptionTest( [ '--', '-t', 'a', 'b', 'c' ] )
         new_test.expected_args = ('-t',) + new_test.expected_args
         new_test.run()
+        return
+
+    def testInterrupt(self):
+        class CLAInterruptTest(CommandLineApp):
+            force_exit = 0
+            called = False
+            def handleInterrupt(self):
+                self.called = True
+                return 99
+            def main(self, *args):
+                raise KeyboardInterrupt()
+
+        app = CLAInterruptTest()
+        try:
+            exit_code = app.run()
+        except KeyboardInterrupt:
+            self.fail('Should have trapped the exception')
+        self.failUnless(app.called)
+        self.failUnlessEqual(exit_code, 99)
+        return
+
+    def testMainException(self):
+        class CLAMainExceptionTest(CommandLineApp):
+            force_exit = 0
+            called = False
+            def handleMainException(self, err):
+                self.called = True
+                return 99
+            def main(self, *args):
+                raise RuntimeError()
+
+        app = CLAMainExceptionTest()
+        try:
+            exit_code = app.run()
+        except RuntimeError:
+            self.fail('Should have trapped the exception')
+        self.failUnless(app.called)
+        self.failUnlessEqual(exit_code, 99)
+        return
+
+    def testRaiseSystemExit(self):
+        class CLARaiseSystemExitTest(CommandLineApp):
+            force_exit = 0
+            called = False
+            def handleMainException(self):
+                self.called = True
+                return 99
+            def main(self, *args):
+                raise SystemExit(88)
+
+        app = CLARaiseSystemExitTest()
+        try:
+            exit_code = app.run()
+        except SystemExit:
+            self.fail('Should have trapped the exception')
+        self.failIf(app.called)
+        self.failUnlessEqual(exit_code, 88)
+        return
+
+    def testSimpleHelpText(self):
+        class CLAHelpTest(CommandLineApp):
+            force_exit = 0
+                
+
+        app = CLAHelpTest()
+        s = app.getSimpleSyntaxHelpString()
+        self.failUnlessEqual(s, '''test_CommandLineApp.py [<options>] 
+
+    --debug
+    -h
+    --help
+    --quiet
+    -v
+    --verbose=level
+''')
+        return
+
+    def testVerboseHelpText(self):
+        class CLAHelpTest(CommandLineApp):
+            force_exit = 0
+                
+
+        app = CLAHelpTest()
+        s = app.getVerboseSyntaxHelpString()
+        self.failUnlessEqual(s, '''
+SYNTAX:
+
+  test_CommandLineApp.py [<options>] 
+
+    --debug
+    -h
+    --help
+    --quiet
+    -v
+    --verbose=level
+
+OPTIONS:
+
+    --debug
+        Set debug mode to see tracebacks.
+    -h
+        Displays abbreviated help message.
+    --help
+        Displays verbose help message.
+    --quiet
+        Turn on quiet mode.
+    -v
+        Increment the verbose level. Higher levels are more verbose.
+        The default is 1.
+    --verbose=level
+        Set the verbose level.
+''')
         return
 
 
