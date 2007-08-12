@@ -208,44 +208,40 @@ class CLATestCase(unittest.TestCase):
         CLAOptionListTest( [ '--option-list=a,b,c' ] ).run()
         return
 
-#     def testLongOptions(self):
-#         class CLALongOptionTest(CommandLineApp):
-#             force_exit = 0
-#             def optionHandler_test(self):
-#                 "Expects no arguments."
-#                 return
-#             def optionHandler_test_args(self, args):
-#                 "Expects some arguments"
-#                 assert args == 'foo'
-#                 return
+    def testLongOptions(self):
+        class CLALongOptionTest(CommandLineApp):
+            force_exit = 0
+            def optionHandler_test(self):
+                "Expects no arguments."
+                return
+            def optionHandler_test_args(self, args):
+                "Expects some arguments"
+                assert args == 'foo'
+                return
 
-#         CLALongOptionTest( [ '--test' ] ).run()
-#         CLALongOptionTest( [ '--test-args', 'foo' ] ).run()
-#         CLALongOptionTest( [ '--test-args=foo' ] ).run()
+        CLALongOptionTest( [ '--test' ] ).run()
+        CLALongOptionTest( [ '--test-args', 'foo' ] ).run()
+        CLALongOptionTest( [ '--test-args=foo' ] ).run()
+        return
 
-#         CLALongOptionTest( [ '--test_args', 'foo' ] ).run()
-#         CLALongOptionTest( [ '--test_args=foo' ] ).run()
+    def testArgsToMain(self):
+        class CLALongOptionTest(CommandLineApp):
+            force_exit = 0
+            expected_args = ( 'a', 'b', 'c' )
+            def optionHandler_t(self):
+                pass
+            def main(self, *args):
+                assert args == self.expected_args, \
+                       'Got %s instead of expected values.' % str(args)
 
-#         return
-
-#     def testArgsToMain(self):
-#         class CLALongOptionTest(CommandLineApp):
-#             force_exit = 0
-#             expected_args = ( 'a', 'b', 'c' )
-#             def optionHandler_t(self):
-#                 pass
-#             def main(self, *args):
-#                 assert args == self.expected_args, \
-#                        'Got %s instead of expected values.' % str(args)
-
-#         CLALongOptionTest( [ 'a', 'b', 'c' ] ).run()
-#         CLALongOptionTest( [ '-t', 'a', 'b', 'c' ] ).run()
-#         CLALongOptionTest( [ '-t', '--', 'a', 'b', 'c' ] ).run()
-#         CLALongOptionTest( [ '--', 'a', 'b', 'c' ] ).run()
-#         new_test = CLALongOptionTest( [ '--', '-t', 'a', 'b', 'c' ] )
-#         new_test.expected_args = ('-t',) + new_test.expected_args
-#         new_test.run()
-#         return
+        CLALongOptionTest( [ 'a', 'b', 'c' ] ).run()
+        CLALongOptionTest( [ '-t', 'a', 'b', 'c' ] ).run()
+        CLALongOptionTest( [ '-t', '--', 'a', 'b', 'c' ] ).run()
+        CLALongOptionTest( [ '--', 'a', 'b', 'c' ] ).run()
+        new_test = CLALongOptionTest( [ '--', '-t', 'a', 'b', 'c' ] )
+        new_test.expected_args = ('-t',) + new_test.expected_args
+        new_test.run()
+        return
 
 
 if __name__ == '__main__':

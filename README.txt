@@ -6,12 +6,6 @@ simple as defining callbacks to handle options when they appear in
 
 To do:
 
-- enhance intelligence of option handling
-
-- boolean options should not need to be implemented as functions
-
-- enable/disable with/without options
-
-- type checking for option arguments
-
-- rewrite using modern python features such as inspect
+- more unit tests
+- switch to gnu_getopt?
+- check command line arguments
