@@ -135,34 +135,69 @@ class SubClassTestApp(TestApp):
 
 class CLATestCase(unittest.TestCase):
 
-    def runAndCatchOutput(self, args):
-        output_text = ''
+    def testScanForOptions(self):
+        class CLAScanForOptionsTest(CommandLineApp):
+            force_exit = False
+            def optionHandler_multi_args(self, *options):
+                "Expects multiple arguments."
+            optionHandler_alias = optionHandler_multi_args
+            def optionHandler_n(self):
+                "No arguments"
+            def optionHandler_kwd(self, default='value'):
+                "single arg with default"
 
-        try:
-            old_stdout = sys.stdout
-            old_stderr = sys.stderr
-            from cStringIO import StringIO
-            sys.stdout = sys.stderr = StringIO()
-            SubClassTestApp( args ).run()
+        options = CLAScanForOptionsTest().scanForOptions()
+        test_options = [ (o.switch, o.option_name, o.arg_name, o.default, o.is_variable)
+                         for o in options 
+                         ]
+        self.failUnlessEqual(
+            test_options, 
+            [('--alias', 'alias', 'options', None, True),
+             ('-h', 'h', None, None, False),
+             ('--help', 'help', None, None, False),
+             ('--kwd', 'kwd', 'default', 'value', False),
+             ('--multi-args', 'multi_args', 'options', None, True),
+             ('-n', 'n', None, None, False),
+             ('-q', 'q', None, None, False),
+             ('-v', 'v', None, None, False),
+             ])
+        return
 
-        except SubClassTestApp.HelpRequested:
-            output_text = sys.stdout.getvalue()
-            sys.stdout = old_stdout
-            sys.stderr = old_stderr
+    def testShortHelpDoesNotRunMain(self):
+        class CLAShortHelpDoesNotRunMain(CommandLineApp):
+            force_exit = False
+            _app_name = 'CLAShortHelpDoesNotRunMain'
+            def showHelp(self, *args, **kwds):
+                return
+            def showVerboseHelp(self):
+                return
+            def main(self, *args):
+                raise AssertionError('Should not be in main!')
 
-        else:
-            sys.stdout = old_stdout
-            sys.stderr = old_stderr
-            self.fail('Help was not requested.')
+        CLAShortHelpDoesNotRunMain(['-h']).run()
+        return
 
-        return output_text
+    def testLongHelpDoesNotRunMain(self):
+        class CLALongHelpDoesNotRunMain(CommandLineApp):
+            force_exit = False
+            _app_name = 'CLALongHelpDoesNotRunMain'
+            def showHelp(self, *args, **kwds):
+                return
+            def showVerboseHelp(self):
+                return
+            def main(self, *args):
+                raise AssertionError('Should not be in main!')
+
+        CLALongHelpDoesNotRunMain(['--help']).run()
+        return
 
     def testOptionList(self):
 
         class CLAOptionListTest(CommandLineApp):
             force_exit = 0
-            expected_options = ['a', 'b', 'c']
-            def optionHandler_t(self, options):
+            _app_name = 'CLAOptionListTest'
+            expected_options = ('a', 'b', 'c')
+            def optionHandler_t(self, *options):
                 "Expects multiple arguments."
                 assert options == self.expected_options, \
                        "Option value does not match expected (%s)" % str(options)
@@ -173,47 +208,44 @@ class CLATestCase(unittest.TestCase):
         CLAOptionListTest( [ '--option-list=a,b,c' ] ).run()
         return
 
-    def testLongOptions(self):
-        class CLALongOptionTest(CommandLineApp):
-            force_exit = 0
-            def optionHandler_test(self):
-                "Expects no arguments."
-                return
-            def optionHandler_test_args(self, args):
-                "Expects some arguments"
-                assert args == 'foo'
-                return
+#     def testLongOptions(self):
+#         class CLALongOptionTest(CommandLineApp):
+#             force_exit = 0
+#             def optionHandler_test(self):
+#                 "Expects no arguments."
+#                 return
+#             def optionHandler_test_args(self, args):
+#                 "Expects some arguments"
+#                 assert args == 'foo'
+#                 return
 
-        CLALongOptionTest( [ '--test' ] ).run()
-        CLALongOptionTest( [ '--test-args', 'foo' ] ).run()
-        CLALongOptionTest( [ '--test-args=foo' ] ).run()
+#         CLALongOptionTest( [ '--test' ] ).run()
+#         CLALongOptionTest( [ '--test-args', 'foo' ] ).run()
+#         CLALongOptionTest( [ '--test-args=foo' ] ).run()
 
-        CLALongOptionTest( [ '--test_args', 'foo' ] ).run()
-        CLALongOptionTest( [ '--test_args=foo' ] ).run()
+#         CLALongOptionTest( [ '--test_args', 'foo' ] ).run()
+#         CLALongOptionTest( [ '--test_args=foo' ] ).run()
 
-        return
+#         return
 
-    def testArgsToMain(self):
-        class CLALongOptionTest(CommandLineApp):
-            force_exit = 0
-            expected_args = ( 'a', 'b', 'c' )
-            def optionHandler_t(self):
-                pass
-            def main(self, *args):
-                assert args == self.expected_args, \
-                       'Got %s instead of expected values.' % str(args)
+#     def testArgsToMain(self):
+#         class CLALongOptionTest(CommandLineApp):
+#             force_exit = 0
+#             expected_args = ( 'a', 'b', 'c' )
+#             def optionHandler_t(self):
+#                 pass
+#             def main(self, *args):
+#                 assert args == self.expected_args, \
+#                        'Got %s instead of expected values.' % str(args)
 
-        CLALongOptionTest( [ 'a', 'b', 'c' ] ).run()
-        CLALongOptionTest( [ '-t', 'a', 'b', 'c' ] ).run()
-        CLALongOptionTest( [ '-t', '--', 'a', 'b', 'c' ] ).run()
-        CLALongOptionTest( [ '--', 'a', 'b', 'c' ] ).run()
-        new_test = CLALongOptionTest( [ '--', '-t', 'a', 'b', 'c' ] )
-        new_test.expected_args = ('-t',) + new_test.expected_args
-        new_test.run()
-        return
-
-
-#SubClassTestApp().run()
+#         CLALongOptionTest( [ 'a', 'b', 'c' ] ).run()
+#         CLALongOptionTest( [ '-t', 'a', 'b', 'c' ] ).run()
+#         CLALongOptionTest( [ '-t', '--', 'a', 'b', 'c' ] ).run()
+#         CLALongOptionTest( [ '--', 'a', 'b', 'c' ] ).run()
+#         new_test = CLALongOptionTest( [ '--', '-t', 'a', 'b', 'c' ] )
+#         new_test.expected_args = ('-t',) + new_test.expected_args
+#         new_test.run()
+#         return
 
 
 if __name__ == '__main__':
