@@ -343,7 +343,23 @@ class CommandLineApp:
                 options_text_parts.append(option.arg_name)
             option_texts.append( ''.join(options_text_parts) )
         return ', '.join(option_texts)
-    
+
+    def getArgumentsSyntaxString(self):
+        """Look at the arguments to main to see what the program accepts,
+        and build a syntax string explaining how to pass those arguments.
+        """
+        syntax_parts = []
+        argspec = inspect.getargspec(self.main)
+        args = argspec[0]
+        if len(args) > 1:
+            for arg in args[1:]:
+                syntax_parts.append(arg)
+        if argspec[1]:
+            syntax_parts.append(argspec[1])
+            syntax_parts.append('[' + argspec[1] + '...]')
+        syntax = ' '.join(syntax_parts)
+        return syntax
+            
     def getSimpleSyntaxHelpString(self):    
         """Return syntax statement.
         
@@ -351,10 +367,13 @@ class CommandLineApp:
         syntax of the command.
         """
         buffer = StringIO()
-
+        
+        
+        
         # Show the name of the command and basic syntax.
-        buffer.write('%s [<options>] %s\n\n' % (sys.argv[0],
-                                                self.SHORT_ARGUMENTS_DESCRIPTION))
+        buffer.write('%s [<options>] %s\n\n' % \
+                         (sys.argv[0], self.getArgumentsSyntaxString())
+                     )
 
         grouped_options = self._groupOptionAliases()
 

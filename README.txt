@@ -6,6 +6,5 @@ simple as defining callbacks to handle options when they appear in
 
 To do:
 
-- more unit tests
 - switch to gnu_getopt?
 - check command line arguments

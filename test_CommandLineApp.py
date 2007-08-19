@@ -136,6 +136,38 @@ class CLATestCase(unittest.TestCase):
         CLALongOptionTest( [ '--test-args=foo' ] ).run()
         return
 
+    def testHelpForMainArgs(self):
+        class CLAOneMainArg(CommandLineApp):
+            def main(self, argname):
+                return
+        
+        app = CLAOneMainArg()
+        self.failUnlessEqual(app.getArgumentsSyntaxString(), 'argname')
+
+        class CLAListMainArg(CommandLineApp):
+            def main(self, *argname):
+                return
+        
+        app = CLAListMainArg()
+        self.failUnlessEqual(app.getArgumentsSyntaxString(), 'argname [argname...]')
+
+        class CLAComboMainArg(CommandLineApp):
+            def main(self, onearg, *listarg):
+                return
+        
+        app = CLAComboMainArg()
+        self.failUnlessEqual(app.getArgumentsSyntaxString(), 
+                             'onearg listarg [listarg...]')
+
+        class CLATwoSinglesMainArg(CommandLineApp):
+            def main(self, onearg, twoarg, *listarg):
+                return
+        
+        app = CLATwoSinglesMainArg()
+        self.failUnlessEqual(app.getArgumentsSyntaxString(), 
+                             'onearg twoarg listarg [listarg...]')
+        return
+
     def testArgsToMain(self):
         class CLALongOptionTest(CommandLineApp):
             force_exit = 0
@@ -219,7 +251,7 @@ class CLATestCase(unittest.TestCase):
 
         app = CLAHelpTest()
         s = app.getSimpleSyntaxHelpString()
-        self.failUnlessEqual(s, '''test_CommandLineApp.py [<options>] 
+        self.failUnlessEqual(s, '''test_CommandLineApp.py [<options>] args [args...]
 
     --debug
     -h
@@ -240,7 +272,7 @@ class CLATestCase(unittest.TestCase):
         self.failUnlessEqual(s, '''
 SYNTAX:
 
-  test_CommandLineApp.py [<options>] 
+  test_CommandLineApp.py [<options>] args [args...]
 
     --debug
     -h
