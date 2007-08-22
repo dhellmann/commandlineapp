@@ -1,0 +1,5 @@
+2007-08-21  Doug Hellmann  <doug.hellmann@gmail.com>
+
+	* CommandLineApp.py (CommandLineApp.getVerboseSyntaxHelpString):
+	Use both class docstring and main's docstring in output.
+

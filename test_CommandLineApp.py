@@ -264,15 +264,30 @@ class CLATestCase(unittest.TestCase):
 
     def testVerboseHelpText(self):
         class CLAHelpTest(CommandLineApp):
+            """This is a test program to verify the help works
+            as expected.
+            """
             force_exit = 0
-                
+
+            EXAMPLES_DESCRIPTION = '''
+Describe a few examples here.
+'''
+
+            def main(self, arg1, *args):
+                """arg1 - First argument.
+
+                args - Remaining arguments.
+                """
+                return
 
         app = CLAHelpTest()
         s = app.getVerboseSyntaxHelpString()
-        self.failUnlessEqual(s, '''
+        self.failUnlessEqual(s, '''This is a test program to verify the help works as expected.
+
+
 SYNTAX:
 
-  test_CommandLineApp.py [<options>] args [args...]
+  test_CommandLineApp.py [<options>] arg1 args [args...]
 
     --debug
     -h
@@ -280,22 +295,40 @@ SYNTAX:
     --quiet
     -v
     --verbose=level
+
+
+ARGUMENTS:
+
+    arg1 - First argument.
+
+    args - Remaining arguments.
+
 
 OPTIONS:
 
     --debug
         Set debug mode to see tracebacks.
+
     -h
         Displays abbreviated help message.
+
     --help
         Displays verbose help message.
+
     --quiet
         Turn on quiet mode.
+
     -v
         Increment the verbose level. Higher levels are more verbose.
         The default is 1.
+
     --verbose=level
         Set the verbose level.
+
+EXAMPLES:
+
+
+Describe a few examples here.
 ''')
         return
 

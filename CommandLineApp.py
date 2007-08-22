@@ -119,8 +119,6 @@ class CommandLineApp:
 
     ARGUMENTS_DESCRIPTION = ''
 
-    SHORT_ARGUMENTS_DESCRIPTION = ''
-    
     EXAMPLES_DESCRIPTION = ''
 
     # For *args arguments to option handlers, how to split the argument values
@@ -368,8 +366,6 @@ class CommandLineApp:
         """
         buffer = StringIO()
         
-        
-        
         # Show the name of the command and basic syntax.
         buffer.write('%s [<options>] %s\n\n' % \
                          (sys.argv[0], self.getArgumentsSyntaxString())
@@ -381,6 +377,18 @@ class CommandLineApp:
         for names, options in grouped_options:
             buffer.write('    %s\n' % self._getOptionIdentifierText(options))
             
+        return buffer.getvalue()
+
+    def _formatHelpText(self, text, prefix):
+        buffer = StringIO()
+        text = textwrap.dedent(text)
+        for para in text.split('\n\n'):
+            formatted_para = textwrap.fill(para, 
+                                           initial_indent=prefix, 
+                                           subsequent_indent=prefix,
+                                           )
+            buffer.write(formatted_para)
+            buffer.write('\n\n')
         return buffer.getvalue()
 
     def getVerboseSyntaxHelpString(self):
@@ -399,8 +407,18 @@ class CommandLineApp:
         """
         buffer = StringIO()
 
+        class_help_text = self._formatHelpText(inspect.getdoc(self.__class__),
+                                               '')
+        buffer.write(class_help_text)
+
         buffer.write('\nSYNTAX:\n\n  ')
         buffer.write(self.getSimpleSyntaxHelpString())
+
+        main_help_text = self._formatHelpText(inspect.getdoc(self.main), '    ')
+        if main_help_text:
+            buffer.write('\n\nARGUMENTS:\n\n')
+            buffer.write(main_help_text)
+
         buffer.write('\nOPTIONS:\n\n')
 
         grouped_options = self._groupOptionAliases()
@@ -409,19 +427,8 @@ class CommandLineApp:
         for names, options in grouped_options:
             buffer.write('    %s\n' % self._getOptionIdentifierText(options))
 
-            help = textwrap.dedent(options[0].help)
-            paras = help.split('\n\n')
-            for para in paras:
-                formatted_para = textwrap.fill(para, 
-                                               initial_indent='        ',
-                                               subsequent_indent='        ',
-                                               )
-                buffer.write(formatted_para)
-                buffer.write('\n')
-            
-        if self.ARGUMENTS_DESCRIPTION:
-            buffer.write('ARGUMENTS:\n\n')
-            buffer.write(self.ARGUMENTS_DESCRIPTION)
+            help = self._formatHelpText(options[0].help, '        ')
+            buffer.write(help)
             
         if self.EXAMPLES_DESCRIPTION:
             buffer.write('EXAMPLES:\n\n')
