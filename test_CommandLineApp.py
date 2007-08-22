@@ -212,6 +212,25 @@ class CLATestCase(unittest.TestCase):
             self.failUnless(app.called_help)
         return
 
+    def testArgsToMainInvalidNoVarArgs(self):
+        class CLAArgsToMainInvalidNoVarArgsTest(CommandLineApp):
+            force_exit = False
+            debugging = True
+            called_help = False
+            def showHelp(self, message):
+                self.called_help = True
+            def main(self, a, b):
+                return
+
+        try:
+            app = CLAArgsToMainInvalidNoVarArgsTest( [ 'a' ] )
+        except TypeError:
+            pass
+        else:
+            app.run()
+            self.failUnless(app.called_help)
+        return
+
     def testInterrupt(self):
         class CLAInterruptTest(CommandLineApp):
             force_exit = False
