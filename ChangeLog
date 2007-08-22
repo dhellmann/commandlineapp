@@ -2,4 +2,6 @@
 
 	* CommandLineApp.py (CommandLineApp.getVerboseSyntaxHelpString):
 	Use both class docstring and main's docstring in output.
+	(CommandLineApp.run): Validate the number of arguments to be
+	passed to main before calling it.
 

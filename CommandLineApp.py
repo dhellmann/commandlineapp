@@ -248,7 +248,28 @@ class CommandLineApp:
             # unless one of the options has disabled it.
             if self._run_main:
                 main_args = tuple(remaining_args)
-                exit_code = self.main(*main_args)
+
+                # We could just call main() and catch a TypeError,
+                # but that would not let us differentiate between
+                # application errors and a case where the user
+                # has not passed us enough arguments.  So, we check
+                # the argument count ourself.
+                num_args_ok = False
+                argspec = inspect.getargspec(self.main)
+                expected_arg_count = len(argspec[0]) - 1
+
+                if argspec[1] is not None:
+                    num_args_ok = True
+                    if len(argspec[0]) > 1:
+                        num_args_ok = (len(main_args) >= expected_arg_count)
+                elif len(main_args) == expected_arg_count:
+                    num_args_ok = True
+
+                if num_args_ok:
+                    exit_code = self.main(*main_args)
+                else:
+                    self.showHelp('Incorrect arguments.')
+                    exit_code = 1
 
         except KeyboardInterrupt:
             exit_code = self.handleInterrupt()
@@ -258,6 +279,8 @@ class CommandLineApp:
 
         except Exception, err:
             exit_code = self.handleMainException(err)
+            if self.debugging:
+                raise
             
         if self.force_exit:
             sys.exit(exit_code)

@@ -48,6 +48,7 @@ class CLATestCase(unittest.TestCase):
     def testScanForOptions(self):
         class CLAScanForOptionsTest(CommandLineApp):
             force_exit = False
+            debugging = True
             def optionHandler_multi_args(self, *options):
                 "Expects multiple arguments."
             optionHandler_alias = optionHandler_multi_args
@@ -78,6 +79,7 @@ class CLATestCase(unittest.TestCase):
     def testShortHelpDoesNotRunMain(self):
         class CLAShortHelpDoesNotRunMain(CommandLineApp):
             force_exit = False
+            debugging = True
             _app_name = 'CLAShortHelpDoesNotRunMain'
             def showHelp(self, *args, **kwds):
                 return
@@ -92,6 +94,7 @@ class CLATestCase(unittest.TestCase):
     def testLongHelpDoesNotRunMain(self):
         class CLALongHelpDoesNotRunMain(CommandLineApp):
             force_exit = False
+            debugging = True
             _app_name = 'CLALongHelpDoesNotRunMain'
             def showHelp(self, *args, **kwds):
                 return
@@ -106,7 +109,8 @@ class CLATestCase(unittest.TestCase):
     def testOptionList(self):
 
         class CLAOptionListTest(CommandLineApp):
-            force_exit = 0
+            force_exit = False
+            debugging = True
             _app_name = 'CLAOptionListTest'
             expected_options = ('a', 'b', 'c')
             def optionHandler_t(self, *options):
@@ -122,7 +126,8 @@ class CLATestCase(unittest.TestCase):
 
     def testLongOptions(self):
         class CLALongOptionTest(CommandLineApp):
-            force_exit = 0
+            force_exit = False
+            debugging = True
             def optionHandler_test(self):
                 "Expects no arguments."
                 return
@@ -169,8 +174,8 @@ class CLATestCase(unittest.TestCase):
         return
 
     def testArgsToMain(self):
-        class CLALongOptionTest(CommandLineApp):
-            force_exit = 0
+        class CLAArgsToMainTest(CommandLineApp):
+            force_exit = False
             expected_args = ( 'a', 'b', 'c' )
             def optionHandler_t(self):
                 pass
@@ -178,18 +183,38 @@ class CLATestCase(unittest.TestCase):
                 assert args == self.expected_args, \
                        'Got %s instead of expected values.' % str(args)
 
-        CLALongOptionTest( [ 'a', 'b', 'c' ] ).run()
-        CLALongOptionTest( [ '-t', 'a', 'b', 'c' ] ).run()
-        CLALongOptionTest( [ '-t', '--', 'a', 'b', 'c' ] ).run()
-        CLALongOptionTest( [ '--', 'a', 'b', 'c' ] ).run()
-        new_test = CLALongOptionTest( [ '--', '-t', 'a', 'b', 'c' ] )
+        CLAArgsToMainTest( [ 'a', 'b', 'c' ] ).run()
+        CLAArgsToMainTest( [ '-t', 'a', 'b', 'c' ] ).run()
+        CLAArgsToMainTest( [ '-t', '--', 'a', 'b', 'c' ] ).run()
+        CLAArgsToMainTest( [ '--', 'a', 'b', 'c' ] ).run()
+
+        new_test = CLAArgsToMainTest( [ '--', '-t', 'a', 'b', 'c' ] )
         new_test.expected_args = ('-t',) + new_test.expected_args
         new_test.run()
         return
 
+    def testArgsToMainInvalid(self):
+        class CLAArgsToMainInvalidTest(CommandLineApp):
+            force_exit = False
+            debugging = True
+            called_help = False
+            def showHelp(self, message):
+                self.called_help = True
+            def main(self, a, b, *args):
+                return
+
+        try:
+            app = CLAArgsToMainInvalidTest( [ 'a' ] )
+        except TypeError:
+            pass
+        else:
+            app.run()
+            self.failUnless(app.called_help)
+        return
+
     def testInterrupt(self):
         class CLAInterruptTest(CommandLineApp):
-            force_exit = 0
+            force_exit = False
             called = False
             def handleInterrupt(self):
                 self.called = True
@@ -208,7 +233,7 @@ class CLATestCase(unittest.TestCase):
 
     def testMainException(self):
         class CLAMainExceptionTest(CommandLineApp):
-            force_exit = 0
+            force_exit = False
             called = False
             def handleMainException(self, err):
                 self.called = True
@@ -227,7 +252,7 @@ class CLATestCase(unittest.TestCase):
 
     def testRaiseSystemExit(self):
         class CLARaiseSystemExitTest(CommandLineApp):
-            force_exit = 0
+            force_exit = False
             called = False
             def handleMainException(self):
                 self.called = True
@@ -246,7 +271,7 @@ class CLATestCase(unittest.TestCase):
 
     def testSimpleHelpText(self):
         class CLAHelpTest(CommandLineApp):
-            force_exit = 0
+            force_exit = False
                 
 
         app = CLAHelpTest()
@@ -267,7 +292,7 @@ class CLATestCase(unittest.TestCase):
             """This is a test program to verify the help works
             as expected.
             """
-            force_exit = 0
+            force_exit = False
 
             EXAMPLES_DESCRIPTION = '''
 Describe a few examples here.
