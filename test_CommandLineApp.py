@@ -250,6 +250,16 @@ class CLATestCase(unittest.TestCase):
         self.failUnlessEqual(exit_code, 99)
         return
 
+    def testFormatHelpTextNone(self):
+        class CLAFormatHelpTextNone(CommandLineApp):
+            force_exit = False
+            called = False
+
+        app = CLAFormatHelpTextNone()
+        self.failUnlessEqual(app._formatHelpText(None, ''), '')
+        self.failUnlessEqual(app._formatHelpText('', ''), '')
+        return
+
     def testMainException(self):
         class CLAMainExceptionTest(CommandLineApp):
             force_exit = False

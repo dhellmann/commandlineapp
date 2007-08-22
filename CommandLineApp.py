@@ -403,6 +403,8 @@ class CommandLineApp:
         return buffer.getvalue()
 
     def _formatHelpText(self, text, prefix):
+        if not text:
+            return ''
         buffer = StringIO()
         text = textwrap.dedent(text)
         for para in text.split('\n\n'):

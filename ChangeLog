@@ -1,3 +1,8 @@
+2007-08-22  Doug Hellmann  <doug.hellmann@gmail.com>
+
+	* CommandLineApp.py (CommandLineApp._formatHelpText): If the input
+	text is None, return an empty string.
+
 2007-08-21  Doug Hellmann  <doug.hellmann@gmail.com>
 
 	* CommandLineApp.py (CommandLineApp.getVerboseSyntaxHelpString):
