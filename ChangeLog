@@ -1,3 +1,15 @@
+2007-08-25  Doug Hellmann  <doug.hellmann@gmail.com>
+
+	* CommandLineApp.py (OptionDef.getSwitchText): Move the option
+	formatting out of CommandLineApp to OptionDef.
+	(OptionDef.invoke): Move option argument handling out of
+	CommandLineApp.
+
+2007-08-23  Doug Hellmann  <doug.hellmann@gmail.com>
+
+	* CommandLineApp.py (CommandLineApp.getSimpleSyntaxHelpString): Do
+	not show the full path to the app, since this is just help.
+
 2007-08-22  Doug Hellmann  <doug.hellmann@gmail.com>
 
 	* CommandLineApp.py (CommandLineApp._formatHelpText): If the input

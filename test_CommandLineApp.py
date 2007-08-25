@@ -301,7 +301,11 @@ class CLATestCase(unittest.TestCase):
     def testSimpleHelpText(self):
         class CLAHelpTest(CommandLineApp):
             force_exit = False
-                
+
+            def optionHandler_repeats(self, *arg):
+                """Argument to this option can repeat.
+                """
+                return
 
         app = CLAHelpTest()
         s = app.getSimpleSyntaxHelpString()
@@ -311,6 +315,7 @@ class CLATestCase(unittest.TestCase):
     -h
     --help
     --quiet
+    --repeats=arg[,arg...]
     -v
     --verbose=level
 ''')

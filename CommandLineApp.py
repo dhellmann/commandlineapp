@@ -70,6 +70,9 @@ class OptionDef:
 
     # Option handler method names start with this value
     OPTION_HANDLER_PREFIX = 'optionHandler_'
+
+    # For *args arguments to option handlers, how to split the argument values
+    SPLIT_PARAM_CHAR = ','
     
     def __init__(self, methodName, method):
         self.method_name = methodName
@@ -102,6 +105,37 @@ class OptionDef:
         self.help = inspect.getdoc(method)
         return
 
+    def getSwitchText(self):
+        """Return the description of the option switch.
+
+        For example: --switch=arg or -s arg or --switch=arg[,arg]
+        """
+        parts = [ self.switch ]
+        if self.arg_name:
+            if self.is_long:
+                parts.append('=')
+            else:
+                parts.append(' ')
+            parts.append(self.arg_name)
+            if self.is_variable:
+                parts.append('[%s%s...]' % (self.SPLIT_PARAM_CHAR, self.arg_name))
+        return ''.join(parts)
+
+
+    def invoke(self, app, arg):
+        """Invoke the option handler.
+        """
+        method = getattr(app, self.method_name)
+        if self.arg_name:
+            if self.is_variable:
+                opt_args = arg.split(self.SPLIT_PARAM_CHAR)
+                method(*opt_args)
+            else:
+                method(arg)
+        else:
+            method()
+        return
+
 
 class CommandLineApp:
     """Base class for building command line applications.
@@ -117,12 +151,7 @@ class CommandLineApp:
     the user asks for help.
     """
 
-    ARGUMENTS_DESCRIPTION = ''
-
     EXAMPLES_DESCRIPTION = ''
-
-    # For *args arguments to option handlers, how to split the argument values
-    SPLIT_PARAM_CHAR = ','
 
     # If true, always ends run() with sys.exit()
     force_exit = True
@@ -232,17 +261,7 @@ class CommandLineApp:
         try:
             for switch, option_value in parsed_options:
                 opt_def = options[switch]
-                method_base = switch.lstrip('-').replace('-', '_')
-                method = getattr(self, opt_def.method_name)
-
-                if opt_def.arg_name:
-                    if opt_def.is_variable:
-                        opt_args = option_value.split(self.SPLIT_PARAM_CHAR)
-                        method(*opt_args)
-                    else:
-                        method(option_value)
-                else:
-                    method()
+                opt_def.invoke(self, option_value)
 
             # Perform the primary action for this application,
             # unless one of the options has disabled it.
@@ -355,14 +374,7 @@ class CommandLineApp:
         """
         option_texts = []
         for option in options:
-            options_text_parts = [ option.switch ]
-            if option.arg_name:
-                if option.is_long:
-                    options_text_parts.append('=')
-                else:
-                    options_text_parts.append(' ')
-                options_text_parts.append(option.arg_name)
-            option_texts.append( ''.join(options_text_parts) )
+            option_texts.append(option.getSwitchText())
         return ', '.join(option_texts)
 
     def getArgumentsSyntaxString(self):
@@ -391,7 +403,7 @@ class CommandLineApp:
         
         # Show the name of the command and basic syntax.
         buffer.write('%s [<options>] %s\n\n' % \
-                         (sys.argv[0], self.getArgumentsSyntaxString())
+                         (self._app_name, self.getArgumentsSyntaxString())
                      )
 
         grouped_options = self._groupOptionAliases()
