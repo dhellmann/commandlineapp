@@ -140,15 +140,14 @@ class OptionDef:
 class CommandLineApp:
     """Base class for building command line applications.
     
-    Define a __doc__ string for the class to explain what the
-    program does.
+    Define a docstring for the class to explain what the program does.
 
-    When the argumentsDescription field is not empty,
-    it will be printed appropriately in the help message.
-    
-    When the examplesDescription field is not empty,
-    it will be printed last in the help message when
-    the user asks for help.
+    Include descriptions of the command arguments in the docstring for
+    main().
+
+    When the EXAMPLES_DESCRIPTION class attribute is not empty, it
+    will be printed last in the help message when the user asks for
+    help.
     """
 
     EXAMPLES_DESCRIPTION = ''
@@ -193,9 +192,80 @@ class CommandLineApp:
             self.errorMessage(str(err))
         return 1
 
-    ##
+    ## HELP
+
+    def showHelp(self, errorMessage=None):
+        "Display help message when error occurs."
+        print
+        if self._app_version:
+            print '%s version %s' % (self._app_name, self._app_version)
+        else:
+            print self._app_name
+        print
+            
+        #
+        # If they made a syntax mistake, just
+        # show them how to use the program.  Otherwise,
+        # show the full help message.
+        #
+        if errorMessage:
+            print ''
+            print 'ERROR: ', errorMessage
+            print ''
+            print ''
+            print '%s\n' % self._app_name
+            print ''
+
+        txt = self.getSimpleSyntaxHelpString()
+        print txt
+        print 'For more details, use --help.'
+        print
+        return
+
+    def showVerboseHelp(self):
+        "Display the full help text for the command."
+        txt = self.getVerboseSyntaxHelpString()
+        print txt
+        return
+
+    ## STATUS MESSAGES
+
+    def statusMessage(self, msg='', verbose_level=1, error=False, newline=True):
+        """Print a status message to output.
+        
+        Arguments
+        
+            msg=''            -- The status message string to be printed.
+            
+            verbose_level=1   -- The verbose level to use.  The message
+                              will only be printed if the current verbose
+                              level is >= this number.
+                              
+            error=False       -- If true, the message is considered an error and
+                              printed as such.
+
+            newline=True      -- If true, print a newline after the message.
+                              
+        """
+        if self.verbose_level >= verbose_level:
+            if error:
+                output = sys.stderr
+            else:
+                output = sys.stdout
+            output.write(str(msg))
+            if newline:
+                output.write('\n')
+            # some log mechanisms don't have a flush method
+            if hasattr(output, 'flush'):
+                output.flush()
+        return
+    
+    def errorMessage(self, msg=''):
+        'Print a message as an error.'
+        self.statusMessage('ERROR: %s\n' % msg, verbose_level=0, error=True)
+        return
+
     ## DEFAULT OPTIONS
-    ##
 
     debugging = False
     def optionHandler_debug(self):
@@ -240,9 +310,7 @@ class CommandLineApp:
                            3)
         return
 
-    ##
     ## INTERNALS (Subclasses should not need to override these methods)
-    ##
 
     def run(self):
         """Entry point.
@@ -439,7 +507,7 @@ class CommandLineApp:
                 the option
                 
           - a description of what additional arguments will be processed,
-                taken from the class member argumentsDescription
+                taken from the arguments to main()
                 
         """
         buffer = StringIO()
@@ -471,110 +539,6 @@ class CommandLineApp:
             buffer.write('EXAMPLES:\n\n')
             buffer.write(self.EXAMPLES_DESCRIPTION)
         return buffer.getvalue()
-
-    def showVerboseHelp(self):
-        """Show a verbose help message explaining how to use the program.
-
-        This includes:
-        
-           * a verbose description of the program, taken from the __doc__
-             string for the class
-             
-           * an explanation of each option, produced by
-             showVerboseSyntaxHelp()
-             
-           * examples of how to use the program for specific tasks,
-             taken from the class member examplesDescription
-             
-        """
-        #
-        # Show the program name and
-        # a description of what it is for.
-        #
-        print ''
-        print '%s\n' % sys.argv[0]
-        doc = inspect.getdoc(self.__class__)
-        if doc:
-            print ''
-            paras = help.split('\n\n')
-            for para in paras:
-                formatted_para = textwrap.fill(para, 
-                                               initial_indent='  ',
-                                               subsequent_indent='  ',
-                                               )
-                print formatted_para
-
-        self.showVerboseSyntaxHelp()
-        return
-
-    def showHelp(self, errorMessage=None):
-        "Display help message when error occurs."
-        print
-        if self._app_version:
-            print '%s version %s' % (self.__class__.__name__, self._app_version)
-        else:
-            print self.__class__.__name__
-        print
-            
-        #
-        # If they made a syntax mistake, just
-        # show them how to use the program.  Otherwise,
-        # show the full help message.
-        #
-        if errorMessage:
-            print ''
-            print 'ERROR: ', errorMessage
-            print ''
-            print ''
-            print '%s\n' % sys.argv[0]
-            print ''
-
-        txt = self.getSimpleSyntaxHelpString()
-        print txt
-        print 'For more details, use --help.'
-        print
-        return
-
-    def showVerboseHelp(self):
-        "Display the full help text for the command."
-        txt = self.getVerboseSyntaxHelpString()
-        print txt
-        return
-
-    def statusMessage(self, msg='', verbose_level=1, error=None, newline=1):
-        """Print a status message to output.
-        
-        Arguments
-        
-            msg=''            -- The status message string to be printed.
-            
-            verbose_level=1    -- The verbose level to use.  The message
-                              will only be printed if the current verbose
-                              level is >= this number.
-                              
-            error=None        -- If true, the message is considered an error and
-                              printed as such.
-
-            newline=1         -- If true, print a newline after the message.
-                              
-        """
-        if self.verbose_level >= verbose_level:
-            if error:
-                output = sys.stderr
-            else:
-                output = sys.stdout
-            output.write(str(msg))
-            if newline:
-                output.write('\n')
-            # some log mechanisms don't have a flush method
-            if hasattr(output, 'flush'):
-                output.flush()
-        return
-    
-    def errorMessage(self, msg=''):
-        'Print a message as an error.'
-        self.statusMessage('ERROR: %s\n' % msg, verbose_level=0, error=True)
-        return
 
 
 if __name__ == '__main__':
