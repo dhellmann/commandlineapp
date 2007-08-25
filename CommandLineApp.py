@@ -53,7 +53,7 @@ import textwrap
 # Module
 #
 
-class OptionDef:
+class OptionDef(object):
     """Definition for a command line option.
 
     Attributes:
@@ -137,7 +137,7 @@ class OptionDef:
         return
 
 
-class CommandLineApp:
+class CommandLineApp(object):
     """Base class for building command line applications.
     
     Define a docstring for the class to explain what the program does.

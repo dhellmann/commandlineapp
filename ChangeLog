@@ -1,11 +1,16 @@
 2007-08-25  Doug Hellmann  <doug.hellmann@gmail.com>
 
+	Rearrange the order of a few methods to make the organization more
+	clear.
+	(CommandLineApp): Use object as a base class.
+	(OptionDef): Use object as a base class.
+
+2007-08-25  Doug Hellmann  <doug.hellmann@gmail.com>
+
 	* CommandLineApp.py (OptionDef.getSwitchText): Move the option
 	formatting out of CommandLineApp to OptionDef.
 	(OptionDef.invoke): Move option argument handling out of
 	CommandLineApp.  
-	Rearrange the order of a few methods to make the organization more
-	clear.
 
 2007-08-23  Doug Hellmann  <doug.hellmann@gmail.com>
 
