@@ -366,8 +366,6 @@ class CommandLineApp(object):
 
         except Exception, err:
             exit_code = self.handleMainException(err)
-            if self.debugging:
-                raise
             
         if self.force_exit:
             sys.exit(exit_code)

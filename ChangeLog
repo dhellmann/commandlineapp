@@ -1,7 +1,9 @@
 2007-08-25  Doug Hellmann  <doug.hellmann@gmail.com>
 
-	Rearrange the order of a few methods to make the organization more
-	clear.
+	* CommandLineApp.py: Rearrange the order of a few methods to make
+	the organization more clear.
+	(CommandLineApp.run): There is no need to re-raise the exception,
+	since it has already been handled.
 	(CommandLineApp): Use object as a base class.
 	(OptionDef): Use object as a base class.
 
