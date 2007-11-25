@@ -230,6 +230,14 @@ class CommandLineApp(object):
 
     ## STATUS MESSAGES
 
+    def _statusMessage(self, msg, output):
+        if isinstance(msg, unicode):
+            to_print = msg.encode('ascii', 'replace')
+        else:
+            to_print = unicode(msg, 'utf-8').encode('ascii', 'replace')
+        output.write(to_print)
+        return
+
     def statusMessage(self, msg='', verbose_level=1, error=False, newline=True):
         """Print a status message to output.
         
@@ -252,7 +260,7 @@ class CommandLineApp(object):
                 output = sys.stderr
             else:
                 output = sys.stdout
-            output.write(str(msg))
+            self._statusMessage(msg, output)
             if newline:
                 output.write('\n')
             # some log mechanisms don't have a flush method

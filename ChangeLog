@@ -1,3 +1,8 @@
+2007-11-25  Doug Hellmann  <doug.hellmann@gmail.com>
+
+	* CommandLineApp.py (CommandLineApp.statusMessage): Force messages
+	to be encoded in ASCII in case we are sent unicode strings.
+
 2007-08-25  Doug Hellmann  <doug.hellmann@gmail.com>
 
 	* CommandLineApp.py: Rearrange the order of a few methods to make

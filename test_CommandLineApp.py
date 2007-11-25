@@ -32,6 +32,7 @@ __module_id__ = "$Id$"
 #
 # Import system modules
 #
+from StringIO import StringIO
 import unittest
 
 #
@@ -44,6 +45,22 @@ from CommandLineApp import *
 #
 
 class CLATestCase(unittest.TestCase):
+
+    def testUnicodeStatusMessage(self):
+        app = CommandLineApp()
+        buffer = StringIO()
+        msg = u'Andr\202'
+        app._statusMessage(msg, buffer)
+        self.failUnlessEqual(buffer.getvalue(), msg.encode('ascii', 'replace'))
+        return
+
+    def testASCIIStatusMessage(self):
+        app = CommandLineApp()
+        buffer = StringIO()
+        msg = 'Andre'
+        app._statusMessage(msg, buffer)
+        self.failUnlessEqual(buffer.getvalue(), msg)
+        return
 
     def testScanForOptions(self):
         class CLAScanForOptionsTest(CommandLineApp):
