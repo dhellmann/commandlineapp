@@ -163,7 +163,29 @@ class CommandLineApp(object):
     def __init__(self, commandLineOptions=sys.argv[1:]):
         "Initialize CommandLineApp."
         self.command_line_options = commandLineOptions
+        self.beforeOptionsHook()
         self.supported_options = self.scanForOptions()
+        self.afterOptionsHook()
+        return
+        
+    def beforeOptionsHook(self):
+        """Hook to initialize the app before the options are processed.
+        
+        Overriding __init__() requires special handling to make sure the
+        arguments are still passed to the base class.  Override this method
+        instead to create local attributes or do other initialization before
+        the command line options are processed.
+        """
+        return
+    
+    def afterOptionsHook(self):
+        """Hook to initialize the app after the options are processed.
+        
+        Overriding __init__() requires special handling to make sure the
+        arguments are still passed to the base class.  Override this method
+        instead to create local attributes or do other initialization after
+        the command line options are processed.
+        """
         return
 
     def main(self, *args):

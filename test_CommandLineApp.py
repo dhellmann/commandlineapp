@@ -53,6 +53,17 @@ class CLATestCase(unittest.TestCase):
         app._statusMessage(msg, buffer)
         self.failUnlessEqual(buffer.getvalue(), msg.encode('ascii', 'replace'))
         return
+        
+    def testOptionHooks(self):
+        class OptionHookTester(CommandLineApp):
+            def beforeOptionsHook(self):
+                self.before = True
+            def afterOptionsHook(self):
+                self.after = True
+        app = OptionHookTester([])
+        self.failUnless(app.before)
+        self.failUnless(app.after)
+        return
 
     def testASCIIStatusMessage(self):
         app = CommandLineApp()
