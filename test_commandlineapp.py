@@ -23,7 +23,7 @@
 # CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-"""Tests for CommandLineApp
+""" Unit tests for commandlineapp module
 
 """
 
@@ -38,7 +38,7 @@ import unittest
 #
 # Import local modules
 #
-from CommandLineApp import *
+from commandlineapp import CommandLineApp
 
 #
 # Module
@@ -46,51 +46,51 @@ from CommandLineApp import *
 
 class CLATestCase(unittest.TestCase):
 
-    def testUnicodeStatusMessage(self):
+    def test_unicode_status_message(self):
         app = CommandLineApp()
         buffer = StringIO()
         msg = u'Andr\202'
-        app._statusMessage(msg, buffer)
+        app._status_message(msg, buffer)
         self.failUnlessEqual(buffer.getvalue(), msg.encode('ascii', 'replace'))
         return
-        
-    def testOptionHooks(self):
+
+    def test_option_hooks(self):
         class OptionHookTester(CommandLineApp):
-            def beforeOptionsHook(self):
+            def before_options_hook(self):
                 self.before = True
-            def afterOptionsHook(self):
+            def after_options_hook(self):
                 self.after = True
         app = OptionHookTester([])
         self.failUnless(app.before)
         self.failUnless(app.after)
         return
 
-    def testASCIIStatusMessage(self):
+    def test_ascii_status_message(self):
         app = CommandLineApp()
         buffer = StringIO()
         msg = 'Andre'
-        app._statusMessage(msg, buffer)
+        app._status_message(msg, buffer)
         self.failUnlessEqual(buffer.getvalue(), msg)
         return
 
-    def testScanForOptions(self):
+    def test_scan_for_options(self):
         class CLAScanForOptionsTest(CommandLineApp):
             force_exit = False
             debugging = True
-            def optionHandler_multi_args(self, *options):
+            def option_handler_multi_args(self, *options):
                 "Expects multiple arguments."
-            optionHandler_alias = optionHandler_multi_args
-            def optionHandler_n(self):
+            option_handler_alias = option_handler_multi_args
+            def option_handler_n(self):
                 "No arguments"
-            def optionHandler_kwd(self, default='value'):
+            def option_handler_kwd(self, default='value'):
                 "single arg with default"
 
-        options = CLAScanForOptionsTest().scanForOptions()
+        options = CLAScanForOptionsTest().scan_for_options()
         test_options = [ (o.switch, o.option_name, o.arg_name, o.default, o.is_variable)
-                         for o in options 
+                         for o in options
                          ]
         self.failUnlessEqual(
-            test_options, 
+            test_options,
             [('--alias', 'alias', 'options', None, True),
              ('--debug', 'debug', None, None, False),
              ('-h', 'h', None, None, False),
@@ -104,14 +104,14 @@ class CLATestCase(unittest.TestCase):
              ])
         return
 
-    def testShortHelpDoesNotRunMain(self):
+    def test_short_help_does_not_run_main(self):
         class CLAShortHelpDoesNotRunMain(CommandLineApp):
             force_exit = False
             debugging = True
             _app_name = 'CLAShortHelpDoesNotRunMain'
-            def showHelp(self, *args, **kwds):
+            def show_help(self, *args, **kwds):
                 return
-            def showVerboseHelp(self):
+            def show_verbose_help(self):
                 return
             def main(self, *args):
                 raise AssertionError('Should not be in main!')
@@ -119,14 +119,14 @@ class CLATestCase(unittest.TestCase):
         CLAShortHelpDoesNotRunMain(['-h']).run()
         return
 
-    def testLongHelpDoesNotRunMain(self):
+    def test_long_help_does_not_run_main(self):
         class CLALongHelpDoesNotRunMain(CommandLineApp):
             force_exit = False
             debugging = True
             _app_name = 'CLALongHelpDoesNotRunMain'
-            def showHelp(self, *args, **kwds):
+            def show_help(self, *args, **kwds):
                 return
-            def showVerboseHelp(self):
+            def show_verbose_help(self):
                 return
             def main(self, *args):
                 raise AssertionError('Should not be in main!')
@@ -134,32 +134,32 @@ class CLATestCase(unittest.TestCase):
         CLALongHelpDoesNotRunMain(['--help']).run()
         return
 
-    def testOptionList(self):
+    def test_option_list(self):
 
         class CLAOptionListTest(CommandLineApp):
             force_exit = False
             debugging = True
             _app_name = 'CLAOptionListTest'
             expected_options = ('a', 'b', 'c')
-            def optionHandler_t(self, *options):
+            def option_handler_t(self, *options):
                 "Expects multiple arguments."
                 assert options == self.expected_options, \
                        "Option value does not match expected (%s)" % str(options)
-            optionHandler_option_list = optionHandler_t
+            option_handler_option_list = option_handler_t
 
         CLAOptionListTest( [ '-t', 'a,b,c' ] ).run()
         CLAOptionListTest( [ '--option-list', 'a,b,c' ] ).run()
         CLAOptionListTest( [ '--option-list=a,b,c' ] ).run()
         return
 
-    def testLongOptions(self):
+    def test_long_options(self):
         class CLALongOptionTest(CommandLineApp):
             force_exit = False
             debugging = True
-            def optionHandler_test(self):
+            def option_handler_test(self):
                 "Expects no arguments."
                 return
-            def optionHandler_test_args(self, args):
+            def option_handler_test_args(self, args):
                 "Expects some arguments"
                 assert args == 'foo'
                 return
@@ -169,43 +169,43 @@ class CLATestCase(unittest.TestCase):
         CLALongOptionTest( [ '--test-args=foo' ] ).run()
         return
 
-    def testHelpForMainArgs(self):
+    def test_help_for_main_args(self):
         class CLAOneMainArg(CommandLineApp):
             def main(self, argname):
                 return
-        
+
         app = CLAOneMainArg()
-        self.failUnlessEqual(app.getArgumentsSyntaxString(), 'argname')
+        self.failUnlessEqual(app.get_arguments_syntax_string(), 'argname')
 
         class CLAListMainArg(CommandLineApp):
             def main(self, *argname):
                 return
-        
+
         app = CLAListMainArg()
-        self.failUnlessEqual(app.getArgumentsSyntaxString(), 'argname [argname...]')
+        self.failUnlessEqual(app.get_arguments_syntax_string(), 'argname [argname...]')
 
         class CLAComboMainArg(CommandLineApp):
             def main(self, onearg, *listarg):
                 return
-        
+
         app = CLAComboMainArg()
-        self.failUnlessEqual(app.getArgumentsSyntaxString(), 
+        self.failUnlessEqual(app.get_arguments_syntax_string(),
                              'onearg listarg [listarg...]')
 
         class CLATwoSinglesMainArg(CommandLineApp):
             def main(self, onearg, twoarg, *listarg):
                 return
-        
+
         app = CLATwoSinglesMainArg()
-        self.failUnlessEqual(app.getArgumentsSyntaxString(), 
+        self.failUnlessEqual(app.get_arguments_syntax_string(),
                              'onearg twoarg listarg [listarg...]')
         return
 
-    def testArgsToMain(self):
+    def test_args_to_main(self):
         class CLAArgsToMainTest(CommandLineApp):
             force_exit = False
             expected_args = ( 'a', 'b', 'c' )
-            def optionHandler_t(self):
+            def option_handler_t(self):
                 pass
             def main(self, *args):
                 assert args == self.expected_args, \
@@ -221,12 +221,12 @@ class CLATestCase(unittest.TestCase):
         new_test.run()
         return
 
-    def testArgsToMainInvalid(self):
+    def test_args_to_main_invalid(self):
         class CLAArgsToMainInvalidTest(CommandLineApp):
             force_exit = False
             debugging = True
             called_help = False
-            def showHelp(self, message):
+            def show_help(self, message):
                 self.called_help = True
             def main(self, a, b, *args):
                 return
@@ -240,12 +240,12 @@ class CLATestCase(unittest.TestCase):
             self.failUnless(app.called_help)
         return
 
-    def testArgsToMainInvalidNoVarArgs(self):
+    def test_args_to_main_invalid_no_var_args(self):
         class CLAArgsToMainInvalidNoVarArgsTest(CommandLineApp):
             force_exit = False
             debugging = True
             called_help = False
-            def showHelp(self, message):
+            def show_help(self, message):
                 self.called_help = True
             def main(self, a, b):
                 return
@@ -259,11 +259,11 @@ class CLATestCase(unittest.TestCase):
             self.failUnless(app.called_help)
         return
 
-    def testInterrupt(self):
+    def test_interrupt(self):
         class CLAInterruptTest(CommandLineApp):
             force_exit = False
             called = False
-            def handleInterrupt(self):
+            def handle_interrupt(self):
                 self.called = True
                 return 99
             def main(self, *args):
@@ -278,21 +278,21 @@ class CLATestCase(unittest.TestCase):
         self.failUnlessEqual(exit_code, 99)
         return
 
-    def testFormatHelpTextNone(self):
+    def test_format_help_text_none(self):
         class CLAFormatHelpTextNone(CommandLineApp):
             force_exit = False
             called = False
 
         app = CLAFormatHelpTextNone()
-        self.failUnlessEqual(app._formatHelpText(None, ''), '')
-        self.failUnlessEqual(app._formatHelpText('', ''), '')
+        self.failUnlessEqual(app._format_help_text(None, ''), '')
+        self.failUnlessEqual(app._format_help_text('', ''), '')
         return
 
-    def testMainException(self):
+    def test_main_exception(self):
         class CLAMainExceptionTest(CommandLineApp):
             force_exit = False
             called = False
-            def handleMainException(self, err):
+            def handle_main_exception(self, err):
                 self.called = True
                 return 99
             def main(self, *args):
@@ -307,11 +307,11 @@ class CLATestCase(unittest.TestCase):
         self.failUnlessEqual(exit_code, 99)
         return
 
-    def testRaiseSystemExit(self):
+    def test_raise_system_exit(self):
         class CLARaiseSystemExitTest(CommandLineApp):
             force_exit = False
             called = False
-            def handleMainException(self):
+            def handle_main_exception(self):
                 self.called = True
                 return 99
             def main(self, *args):
@@ -326,18 +326,18 @@ class CLATestCase(unittest.TestCase):
         self.failUnlessEqual(exit_code, 88)
         return
 
-    def testSimpleHelpText(self):
+    def test_simple_help_text(self):
         class CLAHelpTest(CommandLineApp):
             force_exit = False
 
-            def optionHandler_repeats(self, *arg):
+            def option_handler_repeats(self, *arg):
                 """Argument to this option can repeat.
                 """
                 return
 
         app = CLAHelpTest()
-        s = app.getSimpleSyntaxHelpString()
-        self.failUnlessEqual(s, '''test_CommandLineApp.py [<options>] args [args...]
+        s = app.get_simple_syntax_help_string()
+        self.failUnlessEqual(s, '''test_commandlineapp.py [<options>] args [args...]
 
     --debug
     -h
@@ -349,7 +349,7 @@ class CLATestCase(unittest.TestCase):
 ''')
         return
 
-    def testVerboseHelpText(self):
+    def test_verbose_help_text(self):
         class CLAHelpTest(CommandLineApp):
             """This is a test program to verify the help works
             as expected.
@@ -368,13 +368,13 @@ Describe a few examples here.
                 return
 
         app = CLAHelpTest()
-        s = app.getVerboseSyntaxHelpString()
+        s = app.get_verbose_syntax_help_string()
         self.failUnlessEqual(s, '''This is a test program to verify the help works as expected.
 
 
 SYNTAX:
 
-  test_CommandLineApp.py [<options>] arg1 args [args...]
+  test_commandlineapp.py [<options>] arg1 args [args...]
 
     --debug
     -h
