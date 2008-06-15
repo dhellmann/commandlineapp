@@ -263,17 +263,17 @@ class CommandLineApp(object):
     def status_message(self, msg='', verbose_level=1, error=False, newline=True):
         """Print a status message to output.
 
-msg
-    The status message string to be printed.
-verbose_level
-    The verbose level to use.  The message
-    will only be printed if the current verbose
-    level is >= this number.
-error
-    If true, the message is considered an error and
-    printed as such.
-newline
-    If true, print a newline after the message.
+        msg
+            The status message string to be printed.
+        verbose_level
+            The verbose level to use.  The message
+            will only be printed if the current verbose
+            level is >= this number.
+        error
+            If true, the message is considered an error and
+            printed as such.
+        newline
+            If true, print a newline after the message.
 
         """
         if self.verbose_level >= verbose_level:
@@ -323,6 +323,7 @@ newline
     verbose_level = 1
     def option_handler_v(self):
         """Increment the verbose level.
+        
         Higher levels are more verbose.
         The default is 1.
         """
@@ -463,9 +464,11 @@ newline
 
         For example:
 
-          -h
-          -v, --verbose
-          -f bar, --foo bar
+        -h
+
+        -v, --verbose
+
+        -f bar, --foo bar
         """
         option_texts = []
         for option in options:
@@ -530,11 +533,11 @@ newline
         command in something like UNIX man page format. This includes
 
           - a description of each option and argument, taken from the
-                __doc__ string for the option_handler method for
-                the option
+            __doc__ string for the option_handler method for
+            the option
 
           - a description of what additional arguments will be processed,
-                taken from the arguments to main()
+            taken from the arguments to main()
 
         """
         buffer = StringIO()
