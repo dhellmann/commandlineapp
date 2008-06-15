@@ -1,2 +1,2 @@
 include ChangeLog
-include test_CommandLineApp.py
+include test_commandlineapp.py
