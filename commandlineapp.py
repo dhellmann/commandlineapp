@@ -263,18 +263,17 @@ class CommandLineApp(object):
     def status_message(self, msg='', verbose_level=1, error=False, newline=True):
         """Print a status message to output.
 
-        Arguments
-
-            msg=''            -- The status message string to be printed.
-
-            verbose_level=1   -- The verbose level to use.  The message
-                              will only be printed if the current verbose
-                              level is >= this number.
-
-            error=False       -- If true, the message is considered an error and
-                              printed as such.
-
-            newline=True      -- If true, print a newline after the message.
+msg
+    The status message string to be printed.
+verbose_level
+    The verbose level to use.  The message
+    will only be printed if the current verbose
+    level is >= this number.
+error
+    If true, the message is considered an error and
+    printed as such.
+newline
+    If true, print a newline after the message.
 
         """
         if self.verbose_level >= verbose_level:

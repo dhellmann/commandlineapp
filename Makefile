@@ -16,9 +16,12 @@ info:
 	@echo "register - update PyPI"
 	@echo
 
-package: setup.py
+package: setup.py docs
 	python setup.py sdist --force-manifest
 	mv dist/*.tar.gz ~/Desktop/
+
+docs: commandlineapp.py
+	epydoc -v --docformat restructuredtext --output docs commandlineapp.py
 
 register: setup.py
 	python setup.py register
