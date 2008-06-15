@@ -1,2 +1,3 @@
 include ChangeLog
 include test_commandlineapp.py
+include docs/*
