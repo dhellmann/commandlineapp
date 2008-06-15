@@ -1,5 +1,9 @@
 2008-06-15  Doug Hellmann  <doug.hellmann@gmail.com>
 
+    * MANIFEST.in: Replace the missing test script in the distribution.
+
+2008-06-15  Doug Hellmann  <doug.hellmann@gmail.com>
+
     * commandlineapp.py: Import the PEP8-ified version from Ben Finney.
 
 2008-03-10  Doug Hellmann  <doug.hellmann@gmail.com>
