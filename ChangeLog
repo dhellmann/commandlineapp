@@ -1,3 +1,7 @@
+2008-09-26  Doug Hellmann  <doug.hellmann@gmail.com>
+
+    * commandlineapp.py: source file encoding patch from Ben Finney
+
 2008-06-15  Doug Hellmann  <doug.hellmann@gmail.com>
 
     * MANIFEST.in: Replace the missing test script in the distribution.
