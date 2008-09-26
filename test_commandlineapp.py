@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # Copyright 2007 Doug Hellmann.
 #
@@ -46,10 +47,11 @@ from commandlineapp import CommandLineApp
 
 class CLATestCase(unittest.TestCase):
 
-    def test_unicode_status_message(self):
+    def test_unicode_status_message_degrades_to_ascii(self):
+        """ Unicode status message should degrade gracefully to ASCII """
         app = CommandLineApp()
         buffer = StringIO()
-        msg = u'Andr\202'
+        msg = u'André'
         app._status_message(msg, buffer)
         self.failUnlessEqual(buffer.getvalue(), msg.encode('ascii', 'replace'))
         return
