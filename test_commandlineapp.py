@@ -49,7 +49,7 @@ class CLATestCase(unittest.TestCase):
 
     def test_unicode_status_message_degrades_to_ascii(self):
         """ Unicode status message should degrade gracefully to ASCII """
-        app = CommandLineApp()
+        app = CommandLineApp([])
         buffer = StringIO()
         msg = u'André'
         app._status_message(msg, buffer)
@@ -68,7 +68,7 @@ class CLATestCase(unittest.TestCase):
         return
 
     def test_ascii_status_message(self):
-        app = CommandLineApp()
+        app = CommandLineApp([])
         buffer = StringIO()
         msg = 'Andre'
         app._status_message(msg, buffer)
@@ -87,7 +87,7 @@ class CLATestCase(unittest.TestCase):
             def option_handler_kwd(self, default='value'):
                 "single arg with default"
 
-        options = CLAScanForOptionsTest().scan_for_options()
+        options = CLAScanForOptionsTest([]).scan_for_options()
         test_options = [ (o.switch, o.option_name, o.arg_name, o.default, o.is_variable)
                          for o in options
                          ]
@@ -176,21 +176,21 @@ class CLATestCase(unittest.TestCase):
             def main(self, argname):
                 return
 
-        app = CLAOneMainArg()
+        app = CLAOneMainArg([])
         self.failUnlessEqual(app.get_arguments_syntax_string(), 'argname')
 
         class CLAListMainArg(CommandLineApp):
             def main(self, *argname):
                 return
 
-        app = CLAListMainArg()
+        app = CLAListMainArg([])
         self.failUnlessEqual(app.get_arguments_syntax_string(), 'argname [argname...]')
 
         class CLAComboMainArg(CommandLineApp):
             def main(self, onearg, *listarg):
                 return
 
-        app = CLAComboMainArg()
+        app = CLAComboMainArg([])
         self.failUnlessEqual(app.get_arguments_syntax_string(),
                              'onearg listarg [listarg...]')
 
@@ -198,7 +198,7 @@ class CLATestCase(unittest.TestCase):
             def main(self, onearg, twoarg, *listarg):
                 return
 
-        app = CLATwoSinglesMainArg()
+        app = CLATwoSinglesMainArg([])
         self.failUnlessEqual(app.get_arguments_syntax_string(),
                              'onearg twoarg listarg [listarg...]')
         return
@@ -271,7 +271,7 @@ class CLATestCase(unittest.TestCase):
             def main(self, *args):
                 raise KeyboardInterrupt()
 
-        app = CLAInterruptTest()
+        app = CLAInterruptTest([])
         try:
             exit_code = app.run()
         except KeyboardInterrupt:
@@ -300,7 +300,7 @@ class CLATestCase(unittest.TestCase):
             def main(self, *args):
                 raise RuntimeError()
 
-        app = CLAMainExceptionTest()
+        app = CLAMainExceptionTest([])
         try:
             exit_code = app.run()
         except RuntimeError:
@@ -319,7 +319,7 @@ class CLATestCase(unittest.TestCase):
             def main(self, *args):
                 raise SystemExit(88)
 
-        app = CLARaiseSystemExitTest()
+        app = CLARaiseSystemExitTest([])
         try:
             exit_code = app.run()
         except SystemExit:
@@ -331,15 +331,16 @@ class CLATestCase(unittest.TestCase):
     def test_simple_help_text(self):
         class CLAHelpTest(CommandLineApp):
             force_exit = False
+            _app_name = 'CLAHelpTest'
 
             def option_handler_repeats(self, *arg):
                 """Argument to this option can repeat.
                 """
                 return
 
-        app = CLAHelpTest()
+        app = CLAHelpTest([])
         s = app.get_simple_syntax_help_string()
-        self.failUnlessEqual(s, '''test_commandlineapp.py [<options>] args [args...]
+        self.failUnlessEqual(s, '''CLAHelpTest [<options>] args [args...]
 
     --debug
     -h
@@ -357,6 +358,7 @@ class CLATestCase(unittest.TestCase):
             as expected.
             """
             force_exit = False
+            _app_name = 'CLAHelpTest'
 
             EXAMPLES_DESCRIPTION = '''
 Describe a few examples here.
@@ -369,14 +371,13 @@ Describe a few examples here.
                 """
                 return
 
-        app = CLAHelpTest()
-        s = app.get_verbose_syntax_help_string()
-        self.failUnlessEqual(s, '''This is a test program to verify the help works as expected.
+        app = CLAHelpTest([])
+        expected = '''This is a test program to verify the help works as expected.
 
 
 SYNTAX:
 
-  test_commandlineapp.py [<options>] arg1 args [args...]
+  CLAHelpTest [<options>] arg1 args [args...]
 
     --debug
     -h
@@ -408,8 +409,9 @@ OPTIONS:
         Turn on quiet mode.
 
     -v
-        Increment the verbose level. Higher levels are more verbose.
-        The default is 1.
+        Increment the verbose level.
+
+        Higher levels are more verbose. The default is 1.
 
     --verbose=level
         Set the verbose level.
@@ -418,7 +420,17 @@ EXAMPLES:
 
 
 Describe a few examples here.
-''')
+'''
+        expected = expected.splitlines()
+        actual = app.get_verbose_syntax_help_string().splitlines()
+        for line_num, (actual_line, expected_line) in enumerate(zip(actual, expected)):
+            # if this test fails, uncomment these lines to look for whitespace
+            # differences.
+            #actual_line = actual_line.replace(' ', '.')
+            #expected_line = expected_line.replace(' ', '.')
+            self.failUnlessEqual(actual_line, expected_line,
+                                 "Line %d: %s does not match expected %s" % 
+                                 (line_num, repr(actual_line), repr(expected_line)))
         return
 
 

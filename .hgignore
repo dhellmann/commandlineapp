@@ -3,3 +3,5 @@ syntax: glob
 docs
 setup.py
 MANIFEST
+CommandLineApp.egg-info
+*.zip
