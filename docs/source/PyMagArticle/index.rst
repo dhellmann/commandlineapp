@@ -16,10 +16,6 @@ The Python standard library includes two modules for working with command line o
 
 `CommandLineApp <http://www.doughellmann.com/projects/CommandLineApp/>`_ is a base class for command line programs.  It handles the repetitive aspects of interacting with the user on the command line such as parsing options and arguments, generating help messages, error handling, and printing status messages.  To create your application, just make a subclass of **CommandLineApp** and concentrate on your own code.  All of the information about switches, arguments, and help text necessary for your program to run is derived through introspection.  Common options and behavior can be shared by applications through inheritance.
 
-.. cssclass:: callout
-
-    To create your application, just make a subclass of CommandLineApp and concentrate on your own code.
-
 csvcat Requirements
 -------------------
 
@@ -127,7 +123,7 @@ The program description is taken from the docstring of the **csvcat** class.  Be
 
 The program description is followed by a syntax summary for the program.  The options listed in the syntax section correspond to methods with names that begin with ``option_handler_``.  For example, ``option_handler_skip_headers()`` indicates that **csvcat** should accept a ``--skip-headers`` option on the command line.
 
-The names of any non-optional arguments to the program appear in the syntax summary.  In this case, **csvcat** needs the names of the files containing the input data.  At least one file name is necessary, and multiple names can be given, as indicated by the fact that the ``filename`` argument to ``main()`` (line 78) uses the variable argument notation: ``*filename``.  A longer description of the arguments, taken from the docstring of the ``main()`` method (lines 79-82), follows the syntax summary.  As with the general program summary, the description of the arguments is reformatted with **textwrap** to fit the screen.
+The names of any non-optional arguments to the program appear in the syntax summary.  In this case, **csvcat** needs the names of the files containing the input data.  At least one file name is necessary, and multiple names can be given, as indicated by the fact that the ``filename`` argument to ``main()`` uses the variable argument notation: ``*filename``.  A longer description of the arguments, taken from the docstring of the ``main()`` method (lines 79-82), follows the syntax summary.  As with the general program summary, the description of the arguments is reformatted with **textwrap** to fit the screen.
 
 Options and Their Arguments
 ---------------------------
@@ -138,7 +134,7 @@ The simplest kind of option does not take an argument at all, and is used as a "
 
 Other options accept a single argument.  For example, the ``--dialect`` option requires the name of the CSV output dialect.  The method ``option_handler_dialect`` (lines 46-51) takes one argument, called ``name``.  The suggested syntax for the option, as seen in Listing 1, is ``--dialect=name``.  The name of the method's argument is used as the name of the argument to the option in the help text.
 
-The ``-d`` option has the same meaning as ``--dialect``, because ``option_handler_d`` is an alias for ``option_handler_dialect`` (line 52).  **CommandLineApp** recognizes aliases, and combines the forms in the documentation so the alternative forms ``-d name`` and ``--dialect=name`` are described together.
+The ``-d`` option has the same meaning as ``--dialect``, because ``option_handler_d`` is an alias for ``option_handler_dialect``.  **CommandLineApp** recognizes aliases, and combines the forms in the documentation so the alternative forms ``-d name`` and ``--dialect=name`` are described together.
 
 It is often useful for an option to take multiple arguments, as with ``--columns``.  The user could repeat the option on the command line, but it is more compact to allow them to list multiple values in one argument list.  When **CommandLineApp** sees an option handler method that takes a variable argument list, it treats the corresponding option as accepting a list of arguments.  When the option appears on the command line, the string argument is split on any commas and the resulting list of strings is passed to the option handler method.  
 
@@ -229,28 +225,24 @@ Most of the work for **csvcat** is being done in the ``main()`` method.  To invo
 Listing 3
 ~~~~~~~~~
 
-.. literalinclude:: Listing3.py
-    :linenos:
+.. include:: ../../../commandlineapp.py
+    :literal:
 
-The available and supported options are examined when the instance is initialized (lines 40-44).  By default, the contents of ``sys.argv`` are used as the options and arguments passed in from the command line to the program.  It is easy to pass a different list of options when writing automated tests for your program, by passing a list of strings to ``__init__()`` as ``commandLineOptions``.  The options supported by the program are determined by scanning the class for option handler methods.  No options are actually evaluated until ``run()`` is called.
 
-When the program is run, the first thing it does is use **getopt** to validate the options it has been given (line 201).  In ``callGetopt()``, the arguments needed by **getopt** are constructed based on the option handlers discovered for the class (lines 262-288).  Options are processed in the order they are passed on the command line (lines 205-207), and the option handler method for each option encountered is called.  When an option handler requires an argument that is not provided on the command line, **getopt** detects the error.  When an argument is provided, the option handler is responsible for determining whether the value is the correct type or otherwise valid.  When the argument is not valid, the option handler can raise an exception with an error message to be printed for the user.
+The available and supported options are examined when the instance is initialized.  By default, the contents of ``sys.argv`` are used as the options and arguments passed in from the command line to the program.  It is easy to pass a different list of options when writing automated tests for your program, by passing a list of strings to ``__init__()`` as ``command_line_options``.  The options supported by the program are determined by scanning the class for option handler methods.  No options are actually evaluated until ``run()`` is called.
+
+When the program is run, the first thing it does is use **getopt** to validate the options it has been given.  In ``callGetopt()``, the arguments needed by **getopt** are constructed based on the option handlers discovered for the class.  Options are processed in the order they are passed on the command line, and the option handler method for each option encountered is called.  When an option handler requires an argument that is not provided on the command line, **getopt** detects the error.  When an argument is provided, the option handler is responsible for determining whether the value is the correct type or otherwise valid.  When the argument is not valid, the option handler can raise an exception with an error message to be printed for the user.
 
 After all of the options are handled, the remaining arguments to the program are checked to be sure there are enough to satisfy the requirements, based on the argspec of the ``main()`` function.  The number of arguments is checked explicitly to avoid having to handle a ``TypeError`` if the user does not pass the right number of arguments on the command line.  If **CommandLineApp** depended on catching a ``TypeError`` when it passed too few arguments to ``main()``, it could not tell the difference between a coding error and a user error.  If a mistake inside ``main()`` caused a ``TypeError`` to occur, it might look like the user had passed an incorrect number of arguments to the program.
 
 Error Handling
 ~~~~~~~~~~~~~~
 
-When an exception is raised during option processing or inside ``main()``, the exception is caught by one of the ``except`` clauses on lines 236-245 and given to an error handling method.  Subclasses can change the error handling behavior by overriding these methods.
+When an exception is raised during option processing or inside ``main()``, the exception is caught by one of the ``except`` clauses and given to an error handling method.  Subclasses can change the error handling behavior by overriding these methods.
 
 ``KeyboardInterrupt`` exceptions are handled by calling ``handleInterrupt()``.  The default behavior is to print a message that the program has been interrupted and cause the program to exit with an error code.  A subclass could override the method to clean up an in-progress task, background thread, or other operation which otherwise might not be automatically stopped when the ``KeyboardInterrupt`` is received.
 
-When a lower level library tries to exit the program, ``SystemExit`` may be raised.  **CommandLineApp** traps the ``SystemExit`` exception and exits normally, using the exit status taken from the exception.  If the ``force_exit`` attribute of the application is false, ``run()`` returns instead of exiting (lines 247-249).  Trapping attempts to exit makes it easier to integrate **CommandLineApp** programs with ``unittest`` or other testing frameworks.  The test can instantiate the application, set ``force_exit`` to a false value, then run it.  If any errors occur, a status code is returned but the test process does not exit.
-
-.. cssclass:: callout
-
-    Trapping attempts to exit makes it easier to integrate CommandLineApp programs with unittest or other
-    testing frameworks.
+When a lower level library tries to exit the program, ``SystemExit`` may be raised.  **CommandLineApp** traps the ``SystemExit`` exception and exits normally, using the exit status taken from the exception.  If the ``force_exit`` attribute of the application is false, ``run()`` returns instead of exiting.  Trapping attempts to exit makes it easier to integrate **CommandLineApp** programs with ``unittest`` or other testing frameworks.  The test can instantiate the application, set ``force_exit`` to a false value, then run it.  If any errors occur, a status code is returned but the test process does not exit.
 
 All other types of exceptions are handled by calling ``handleMainException()`` and passing the exception as an argument.  The default implementation of ``handleMainException()`` (lines 62-70) prints a simple error message based on the exception, unless debugging mode is turned on.  Debugging mode prints the entire traceback for the exception.
 
@@ -265,9 +257,9 @@ Option Definitions
 
 The standard library module **inspect** provides functions for performing introspection operations on classes and objects at runtime.  The API supports basic querying and type checking so it is possible, for example, to get a list of the methods of a class, including all inherited methods.  
 
-``CommandLineApp.scanForOptions()`` uses **inspect** to scan an application class for option handler methods (lines 251-260).  All of the methods of the class are retrieved with ``inspect.getmembers()``, and those whose name starts with ``option_handler_`` are added to the list of supported options.  Since most command line options use dashes instead of underscores, but method names cannot contain dashes, the underscores in the option handler method names are converted to dashes when creating the option name.
+``CommandLineApp.scan_for_options()`` uses **inspect** to scan an application class for option handler methods.  All of the methods of the class are retrieved with ``inspect.getmembers()``, and those whose name starts with ``option_handler_`` are added to the list of supported options.  Since most command line options use dashes instead of underscores, but method names cannot contain dashes, the underscores in the option handler method names are converted to dashes when creating the option name.
 
-The ``__init__()`` method of the **OptionDef** class (lines 440-469) does all of the work of determining the command line switch name and what type of arguments the switch takes.  The option handler method is examined with ``inspect.getargspec()``, and the result is used to initialize the **OptionDef**.
+The ``__init__()`` method of the **OptionDef** class does all of the work of determining the command line switch name and what type of arguments the switch takes.  The option handler method is examined with ``inspect.getargspec()``, and the result is used to initialize the **OptionDef**.
 
 An "argspec" for a function is a tuple made up of four values: a list of the names of all regular arguments to the function, including ``self`` if the function is a method; the name of the argument to receive the variable argument values, if any; the name of the argument to receive the keyword arguments, if any; and a list of the default values for the arguments, in they order they appear in the list of option names.
 
@@ -291,7 +283,7 @@ The ``option_handler_dialect``, on the other hand, does include an additional ar
     ... Listing2.csvcat.option_handler_dialect)
     (['self', 'name'], None, None, None)
 
-The ``name`` argument is listed in the argspec as a single regular argument.  The result, when a program is run, is that while the options are being processed by **CommandLineApp** and **OptionDef**, the value for ``name`` is passed directly to the option handler method (line 497).
+The ``name`` argument is listed in the argspec as a single regular argument.  The result, when a program is run, is that while the options are being processed by **CommandLineApp** and **OptionDef**, the value for ``name`` is passed directly to the option handler method.
 
 The ``option_handler_columns`` method illustrates variable argument handling:
 
@@ -301,14 +293,14 @@ The ``option_handler_columns`` method illustrates variable argument handling:
     ... Listing2.csvcat.option_handler_columns)
     (['self'], 'col', None, None)
 
-The ``col`` argument from ``option_handler_columns`` is named in the argspec as the variable argument identifier.  Since ``option_handler_columns`` accepts variable arguments, the **OptionDef** splits the argument value into a list of strings, and the list is passed to the option handler method (lines 494-495) using the variable argument syntax.
+The ``col`` argument from ``option_handler_columns`` is named in the argspec as the variable argument identifier.  Since ``option_handler_columns`` accepts variable arguments, the **OptionDef** splits the argument value into a list of strings, and the list is passed to the option handler method using the variable argument syntax.
 
 The other variable argument configuration, using unidentified keyword arguments, does not make sense for an option handler.  The user of the command line program has no standard way to specify named arguments to options, so they are not supported by **OptionDef**.
 
 Status Messages
 ~~~~~~~~~~~~~~~
 
-In addition to command line option and argument parsing, and error handling, **CommandLineApp** provides a "status message" interface for giving varying levels of feedback to the user.  Status messages are printed by calling ``self.statusMessage()`` (line 108).  Each message must indicate the verbose level setting at which the message should be printed.  If the current verbose level is at or higher than the desired level, the message is printed.  Otherwise, it is ignored.  The ``-v``, ``--verbose``, and ``--quiet`` flags let the user control the ``verbose_level`` setting for the application, and are defined in the **CommandLineApp** so that all subclasses inherit them.
+In addition to command line option and argument parsing, and error handling, **CommandLineApp** provides a "status message" interface for giving varying levels of feedback to the user.  Status messages are printed by calling ``self.status_message()``.  Each message must indicate the verbose level setting at which the message should be printed.  If the current verbose level is at or higher than the desired level, the message is printed.  Otherwise, it is ignored.  The ``-v``, ``--verbose``, and ``--quiet`` flags let the user control the ``verbose_level`` setting for the application, and are defined in the **CommandLineApp** so that all subclasses inherit them.
 
 Listing 4
 ~~~~~~~~~
@@ -316,7 +308,7 @@ Listing 4
 .. literalinclude:: Listing4.py
     :linenos:
 
-Listing 4 contains another sample application which uses ``statusMessage()`` to illustrate how the verbose level setting is applied.  The default verbose level is 1, so when the program is run without any additional arguments only a single message is printed:
+Listing 4 contains another sample application which uses ``status_message()`` to illustrate how the verbose level setting is applied.  The default verbose level is 1, so when the program is run without any additional arguments only a single message is printed:
 
 ::
 
@@ -357,7 +349,7 @@ And the ``--verbose`` option sets the verbose level directly to the desired valu
     Level 4
     $
 
-Error messages can be printed to the standard error stream using the ``errorMessage()`` method (lines 138-141).  The message is prefixed with the word "ERROR", and error messages are always printed, no matter what verbose level is set.  Most programs will not need to use ``errorMessage()`` directly, because raising an exception is sufficient to have an error message displayed for the user.
+Error messages can be printed to the standard error stream using the ``error_message()`` method.  The message is prefixed with the word "ERROR", and error messages are always printed, no matter what verbose level is set.  Most programs will not need to use ``errorMessage()`` directly, because raising an exception is sufficient to have an error message displayed for the user.
 
 CommandLineApp and Inheritance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -371,7 +363,7 @@ Listing 5
     :linenos:
 
 
-**SQLiteAppBase** defines a single option handler for the ``--db`` option to let the user choose the database file (line 12).  The default database is a file in the current directory called "sqlite.db".  The ``main()`` method establishes a connection to the database (line 22), opens a cursor for working with the connection (line 24), then calls ``takeAction()`` to do the work (line 25).  When ``takeAction()`` raises an exception, all database changes it may have made are discarded and the transaction is rolled back (line 28).  When there is no error, the transaction is committed and the changes are saved (line 32).
+**SQLiteAppBase** defines a single option handler for the ``--db`` option to let the user choose the database file.  The default database is a file in the current directory called "sqlite.db".  The ``main()`` method establishes a connection to the database, opens a cursor for working with the connection, then calls ``takeAction()`` to do the work.  When ``takeAction()`` raises an exception, all database changes it may have made are discarded and the transaction is rolled back.  When there is no error, the transaction is committed and the changes are saved.
 
 Listing 6
 ~~~~~~~~~
@@ -380,7 +372,7 @@ Listing 6
     :linenos:
 
 
-A subclass of **SQLiteAppBase** can override ``takeAction()`` to do some actual work using the database connection and cursor created in ``main()``.  Listing 6 contains one such program, called ``initdb``.  In ``initdb``, the ``takeAction()`` method creates a "log" table (line 14) using the database cursor established in the base class.  It then inserts two rows into the new table, using the same cursor.  There is no need for ``initdb`` to commit the transaction, since the base class will do that after ``takeAction()`` returns without raising an exception.
+A subclass of **SQLiteAppBase** can override ``takeAction()`` to do some actual work using the database connection and cursor created in ``main()``.  Listing 6 contains one such program, called ``initdb``.  In ``initdb``, the ``takeAction()`` method creates a "log" table using the database cursor established in the base class.  It then inserts two rows into the new table, using the same cursor.  There is no need for ``initdb`` to commit the transaction, since the base class will do that after ``takeAction()`` returns without raising an exception.
 
 ::
 
@@ -394,7 +386,7 @@ Listing 7
     :linenos:
 
 
-The ``showlog`` program in Listing 7 also uses **SQLiteAppBase**.  It reads records from the log table and prints them out to the screen.  When no options are given, it uses the cursor opened by the base class to find all of the records in the "log" table (line 24), and print them:
+The ``showlog`` program in Listing 7 also uses **SQLiteAppBase**.  It reads records from the log table and prints them out to the screen.  When no options are given, it uses the cursor opened by the base class to find all of the records in the "log" table, and print them:
 
 ::
 
@@ -402,14 +394,14 @@ The ``showlog`` program in Listing 7 also uses **SQLiteAppBase**.  It reads reco
     Sat Aug 25 19:09:41 2007       Created database
     Sat Aug 25 19:09:41 2007       Created log table
 
-The ``--message`` option to ``showlog`` can be used to filter the output to include only records whose message column matches the pattern given.  When a message substring is specified, the select statement is altered to include only messages containing the substring (lines 19-20).  In this example, only log messages with the word "table" in the message are printed: 
+The ``--message`` option to ``showlog`` can be used to filter the output to include only records whose message column matches the pattern given.  When a message substring is specified, the select statement is altered to include only messages containing the substring.  In this example, only log messages with the word "table" in the message are printed: 
 
 ::
 
     $ python Listing7.py --message table
     Sat Aug 25 19:09:41 2007       Created log table
 
-The ``updatelog`` program in Listing 8 inserts new records into the database.  Each time ``updatelog`` is called, the message passed on the command line is saved as an instance attribute by ``main()`` (line 15) so it can be used later when a new row is inserted into the ``log`` table (line 20) by ``takeAction()``.
+The ``updatelog`` program in Listing 8 inserts new records into the database.  Each time ``updatelog`` is called, the message passed on the command line is saved as an instance attribute by ``main()`` so it can be used later when a new row is inserted into the ``log`` table by ``takeAction()``.
 
 Listing 8
 ~~~~~~~~~
