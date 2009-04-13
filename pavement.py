@@ -118,12 +118,19 @@ def run_script(input_file, script_name,
        If False, the output is passed to rstrip() then one newline is added.  If
        True, newlines are added to the output until it ends in 2.
     """
+    # rundir = path(input_file).dirname()
+    # if interpreter:
+    #     cmd = '%(interpreter)s %(script_name)s' % vars()
+    # else:
+    #     cmd = script_name
+    # real_cmd = 'cd %(rundir)s; %(cmd)s 2>&1' % vars()
     rundir = path(input_file).dirname()
+    full_script_name = rundir / script_name
     if interpreter:
-        cmd = '%(interpreter)s %(script_name)s' % vars()
+        cmd = '%(interpreter)s %(full_script_name)s' % vars()
     else:
-        cmd = script_name
-    real_cmd = 'cd %(rundir)s; %(cmd)s 2>&1' % vars()
+        cmd = full_script_name
+    real_cmd = cmd
     try:
         output_text = sh(real_cmd, capture=True, ignore_error=ignore_error)
     except Exception, err:
@@ -163,14 +170,7 @@ def sdist():
     pass
 
 @task
-def copy_src_to_listing(options):
-    #destdir=path(options.sphinx.docroot) / options.sphinx.sourcedir / 'PyMagArticle'
-    destdir='docs/source/PyMagArticle'
-    sh('cp commandlineapp.py %s' % destdir)
-    return
-
-@task
-@needs(['copy_src_to_listing', 'cog', 'paver.doctools.html'])
+@needs(['cog', 'paver.doctools.html'])
 def html(options):
     """Run sphinx to produce the documentation.
     """

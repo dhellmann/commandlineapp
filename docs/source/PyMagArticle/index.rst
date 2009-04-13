@@ -41,11 +41,79 @@ Listing 1
 
 ::
 
-	$ python Listing2.py --help
-	Traceback (most recent call last):
-	  File "Listing2.py", line 7, in <module>
-	    import commandlineapp
-	ImportError: No module named commandlineapp
+	$ python docs/source/PyMagArticle/Listing2.py --help
+	Concatenate comma separated value files.
+	
+	
+	SYNTAX:
+	
+	  csvcat [<options>] filename [filename...]
+	
+	    -c col[,col...], --columns=col[,col...]
+	    -d name, --dialect=name
+	    --debug
+	    -h
+	    --help
+	    --quiet
+	    --skip-headers
+	    -v
+	    --verbose=level
+	
+	
+	ARGUMENTS:
+	
+	    The names of comma separated value files, such as might be
+	    exported from a spreadsheet or database program.
+	
+	
+	OPTIONS:
+	
+	    -c col[,col...], --columns=col[,col...]
+	        Limit the output to the specified columns. Columns are
+	        identified by number, starting with 0.
+	
+	    -d name, --dialect=name
+	        Specify the output dialect name. Defaults to "excel".
+	
+	    --debug
+	        Set debug mode to see tracebacks.
+	
+	    -h
+	        Displays abbreviated help message.
+	
+	    --help
+	        Displays verbose help message.
+	
+	    --quiet
+	        Turn on quiet mode.
+	
+	    --skip-headers
+	        Treat the first line of each file as a header, and only
+	        include one copy in the output.
+	
+	    -v
+	        Increment the verbose level.
+	
+	        Higher levels are more verbose. The default is 1.
+	
+	    --verbose=level
+	        Set the verbose level.
+	
+	EXAMPLES:
+	
+	
+	To concatenate 2 files, including all columns and headers:
+	
+	  $ csvcat file1.csv file2.csv
+	
+	To concatenate 2 files, skipping the headers in the second file:
+	
+	  $ csvcat --skip-headers file1.csv file2.csv
+	
+	To concatenate 2 files, including only the first and third columns:
+	
+	  $ csvcat --col 0,2 file1.csv file2.csv
+	
 
 .. [[[end]]]
 
@@ -57,7 +125,7 @@ Listing 2
 
 The program description is taken from the docstring of the **csvcat** class.  Before it is printed, the text is split into paragraphs and reformatted using **textwrap**, to ensure that it is no wider than 80 columns of text.
 
-The program description is followed by a syntax summary for the program.  The options listed in the syntax section correspond to methods with names that begin with ``optionHandler_``.  For example, ``optionHandler_skip_headers()`` indicates that **csvcat** should accept a ``--skip-headers`` option on the command line.
+The program description is followed by a syntax summary for the program.  The options listed in the syntax section correspond to methods with names that begin with ``option_handler_``.  For example, ``option_handler_skip_headers()`` indicates that **csvcat** should accept a ``--skip-headers`` option on the command line.
 
 The names of any non-optional arguments to the program appear in the syntax summary.  In this case, **csvcat** needs the names of the files containing the input data.  At least one file name is necessary, and multiple names can be given, as indicated by the fact that the ``filename`` argument to ``main()`` (line 78) uses the variable argument notation: ``*filename``.  A longer description of the arguments, taken from the docstring of the ``main()`` method (lines 79-82), follows the syntax summary.  As with the general program summary, the description of the arguments is reformatted with **textwrap** to fit the screen.
 
@@ -66,15 +134,15 @@ Options and Their Arguments
 
 Following the argument description is a detailed explanation of all of the options to the program.  **CommandLineApp** examines each option handler method to build the option description, including the name of the option, alternative names for the same option, and the name and description of any arguments the option accepts.  There are three variations of option handlers, based on the arguments used by the option. 
 
-The simplest kind of option does not take an argument at all, and is used as a "switch" to turn a feature on or off.  The method ``optionHandler_skip_headers`` (lines 38-43) is an example of such a switch.  The method takes no argument, so **CommandLineApp** recognizes that the option being defined does not take an argument either.  To create the option name, the prefix is stripped from the method name, and the underscore is converted to a dash (``-``); ``optionHandler_skip_headers`` becomes ``--skip-headers``.
+The simplest kind of option does not take an argument at all, and is used as a "switch" to turn a feature on or off.  The method ``option_handler_skip_headers`` (lines 38-43) is an example of such a switch.  The method takes no argument, so **CommandLineApp** recognizes that the option being defined does not take an argument either.  To create the option name, the prefix is stripped from the method name, and the underscore is converted to a dash (``-``); ``option_handler_skip_headers`` becomes ``--skip-headers``.
 
-Other options accept a single argument.  For example, the ``--dialect`` option requires the name of the CSV output dialect.  The method ``optionHandler_dialect`` (lines 46-51) takes one argument, called ``name``.  The suggested syntax for the option, as seen in Listing 1, is ``--dialect=name``.  The name of the method's argument is used as the name of the argument to the option in the help text.
+Other options accept a single argument.  For example, the ``--dialect`` option requires the name of the CSV output dialect.  The method ``option_handler_dialect`` (lines 46-51) takes one argument, called ``name``.  The suggested syntax for the option, as seen in Listing 1, is ``--dialect=name``.  The name of the method's argument is used as the name of the argument to the option in the help text.
 
-The ``-d`` option has the same meaning as ``--dialect``, because ``optionHandler_d`` is an alias for ``optionHandler_dialect`` (line 52).  **CommandLineApp** recognizes aliases, and combines the forms in the documentation so the alternative forms ``-d name`` and ``--dialect=name`` are described together.
+The ``-d`` option has the same meaning as ``--dialect``, because ``option_handler_d`` is an alias for ``option_handler_dialect`` (line 52).  **CommandLineApp** recognizes aliases, and combines the forms in the documentation so the alternative forms ``-d name`` and ``--dialect=name`` are described together.
 
 It is often useful for an option to take multiple arguments, as with ``--columns``.  The user could repeat the option on the command line, but it is more compact to allow them to list multiple values in one argument list.  When **CommandLineApp** sees an option handler method that takes a variable argument list, it treats the corresponding option as accepting a list of arguments.  When the option appears on the command line, the string argument is split on any commas and the resulting list of strings is passed to the option handler method.  
 
-For example, ``optionHandler_columns`` (lines 55-60) takes a variable length argument named ``col``.  The option ``--columns`` can be followed by several column numbers, separated by commas.  The option handler is called with the list of values pre-parsed.  In the syntax description, the argument is shown repeating: ``--columns=col[,col...]``.
+For example, ``option_handler_columns`` (lines 55-60) takes a variable length argument named ``col``.  The option ``--columns`` can be followed by several column numbers, separated by commas.  The option handler is called with the list of values pre-parsed.  In the syntax description, the argument is shown repeating: ``--columns=col[,col...]``.
 
 For all cases, the docstring from the option handler method serves as the help text for the option.  The text of the docstring is reformatted using **textwrap** so both the code and help output are easy to read without extra effort on the part of the developer.
 
@@ -197,43 +265,43 @@ Option Definitions
 
 The standard library module **inspect** provides functions for performing introspection operations on classes and objects at runtime.  The API supports basic querying and type checking so it is possible, for example, to get a list of the methods of a class, including all inherited methods.  
 
-``CommandLineApp.scanForOptions()`` uses **inspect** to scan an application class for option handler methods (lines 251-260).  All of the methods of the class are retrieved with ``inspect.getmembers()``, and those whose name starts with ``optionHandler_`` are added to the list of supported options.  Since most command line options use dashes instead of underscores, but method names cannot contain dashes, the underscores in the option handler method names are converted to dashes when creating the option name.
+``CommandLineApp.scanForOptions()`` uses **inspect** to scan an application class for option handler methods (lines 251-260).  All of the methods of the class are retrieved with ``inspect.getmembers()``, and those whose name starts with ``option_handler_`` are added to the list of supported options.  Since most command line options use dashes instead of underscores, but method names cannot contain dashes, the underscores in the option handler method names are converted to dashes when creating the option name.
 
 The ``__init__()`` method of the **OptionDef** class (lines 440-469) does all of the work of determining the command line switch name and what type of arguments the switch takes.  The option handler method is examined with ``inspect.getargspec()``, and the result is used to initialize the **OptionDef**.
 
 An "argspec" for a function is a tuple made up of four values: a list of the names of all regular arguments to the function, including ``self`` if the function is a method; the name of the argument to receive the variable argument values, if any; the name of the argument to receive the keyword arguments, if any; and a list of the default values for the arguments, in they order they appear in the list of option names.
 
-The argspecs for the option handlers in **csvcat** illustrate the variations of interest to **OptionDef**.  First, ``optionHandler_skip_headers``:
+The argspecs for the option handlers in **csvcat** illustrate the variations of interest to **OptionDef**.  First, ``option_handler_skip_headers``:
 
 ::
 
     >>> import Listing2
     >>> import inspect
     >>> print inspect.getargspec(
-    ... Listing2.csvcat.optionHandler_skip_headers)
+    ... Listing2.csvcat.option_handler_skip_headers)
     (['self'], None, None, None)
 
 Since the only positional argument to the method is ``self``, and there is no variable argument name given, the option handler is treated as a simple command line switch without any arguments.
 
-The ``optionHandler_dialect``, on the other hand, does include an additional argument:
+The ``option_handler_dialect``, on the other hand, does include an additional argument:
 
 ::
 
     >>> print inspect.getargspec(
-    ... Listing2.csvcat.optionHandler_dialect)
+    ... Listing2.csvcat.option_handler_dialect)
     (['self', 'name'], None, None, None)
 
 The ``name`` argument is listed in the argspec as a single regular argument.  The result, when a program is run, is that while the options are being processed by **CommandLineApp** and **OptionDef**, the value for ``name`` is passed directly to the option handler method (line 497).
 
-The ``optionHandler_columns`` method illustrates variable argument handling:
+The ``option_handler_columns`` method illustrates variable argument handling:
 
 ::
 
     >>> print inspect.getargspec(
-    ... Listing2.csvcat.optionHandler_columns)
+    ... Listing2.csvcat.option_handler_columns)
     (['self'], 'col', None, None)
 
-The ``col`` argument from ``optionHandler_columns`` is named in the argspec as the variable argument identifier.  Since ``optionHandler_columns`` accepts variable arguments, the **OptionDef** splits the argument value into a list of strings, and the list is passed to the option handler method (lines 494-495) using the variable argument syntax.
+The ``col`` argument from ``option_handler_columns`` is named in the argspec as the variable argument identifier.  Since ``option_handler_columns`` accepts variable arguments, the **OptionDef** splits the argument value into a list of strings, and the list is passed to the option handler method (lines 494-495) using the variable argument syntax.
 
 The other variable argument configuration, using unidentified keyword arguments, does not make sense for an option handler.  The user of the command line program has no standard way to specify named arguments to options, so they are not supported by **OptionDef**.
 

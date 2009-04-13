@@ -9,6 +9,8 @@ import commandlineapp
 class csvcat(commandlineapp.CommandLineApp):
     """Concatenate comma separated value files.
     """
+    
+    _app_name = 'csvcat'
 
     EXAMPLES_DESCRIPTION = '''
 To concatenate 2 files, including all columns and headers:
@@ -49,7 +51,7 @@ To concatenate 2 files, including only the first and third columns:
         """
         self.dialect = name
         return
-    optionHandler_d = optionHandler_dialect
+    option_handler_d = option_handler_dialect
 
     columns = []
     def option_handler_columns(self, *col):
@@ -58,7 +60,7 @@ To concatenate 2 files, including only the first and third columns:
         """
         self.columns.extend([int(c) for c in col])
         return
-    optionHandler_c = optionHandler_columns
+    option_handler_c = option_handler_columns
 
     def getPrintableColumns(self, row):
         """Return only the part of the row which should be printed.
