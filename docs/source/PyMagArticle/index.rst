@@ -3,7 +3,7 @@ Command line programs are classes, too!
 
 .. note::
 
-    This article was originally published in the November 2007 issue of `Python Magazine <http://www.pythonmagazine.com/>`_.
+    This article was originally published in the November 2007 issue of `Python Magazine <http://www.pythonmagazine.com/>`_.  It has been updated to match the more recent versions of :class:`CommandLineApp`.
 
 *Most OOP discussions focus on GUI or domain-specific development areas, completely ignoring the workhorse of computing: command line programs. This article examines CommandLineApp, a base class for creating command line programs as objects, with option and argument validation, help text generation, and more.*
 
@@ -14,12 +14,12 @@ Although many of the hot new development topics are centered on web technologies
 
 The Python standard library includes two modules for working with command line options.  The **getopt** module presents an API that has been in use for decades on some platforms and is commonly available in many programming languages, from C to bash. The **optparse** module is more modern than **getopt**, and offers features such as type validation, callbacks, and automatic help generation.  Both modules elect to use a procedural-style interface, though, and as a result neither has direct support for treating your command line application as a first class object.  There is no facility for sharing common options between related programs using **getopt**.  And, while it is possible to reuse ``optparse.OptionParser`` instances in different programs, it is not as natural as inheritance.
 
-`CommandLineApp <http://www.doughellmann.com/projects/CommandLineApp/>`_ is a base class for command line programs.  It handles the repetitive aspects of interacting with the user on the command line such as parsing options and arguments, generating help messages, error handling, and printing status messages.  To create your application, just make a subclass of **CommandLineApp** and concentrate on your own code.  All of the information about switches, arguments, and help text necessary for your program to run is derived through introspection.  Common options and behavior can be shared by applications through inheritance.
+`CommandLineApp <http://www.doughellmann.com/projects/CommandLineApp/>`_ is a base class for command line programs.  It handles the repetitive aspects of interacting with the user on the command line such as parsing options and arguments, generating help messages, error handling, and printing status messages.  To create your application, just make a subclass of :class:`CommandLineApp` and concentrate on your own code.  All of the information about switches, arguments, and help text necessary for your program to run is derived through introspection.  Common options and behavior can be shared by applications through inheritance.
 
 csvcat Requirements
 -------------------
 
-Recently, I needed to combine data from a few different sources, including a database and a spreadsheet, to summarize the results. I wanted to import the merged data into a spreadsheet where I could perform the analysis.  All of the sources were able to save data to comma-separated-value (CSV) files; the challenge was merging the files together.  Using the **csv** module in the Python standard library, and **CommandLineApp**, I wrote a small program to read multiple CSV files and concatenate them into a single output file.  The program, `csvcat <http://www.doughellmann.com/projects/csvcat/>`_, is a good illustration of how to create applications with **CommandLineApp**.
+Recently, I needed to combine data from a few different sources, including a database and a spreadsheet, to summarize the results. I wanted to import the merged data into a spreadsheet where I could perform the analysis.  All of the sources were able to save data to comma-separated-value (CSV) files; the challenge was merging the files together.  Using the **csv** module in the Python standard library, and :class:`CommandLineApp`, I wrote a small program to read multiple CSV files and concatenate them into a single output file.  The program, `csvcat <http://www.doughellmann.com/projects/csvcat/>`_, is a good illustration of how to create applications with :class:`CommandLineApp`.
 
 The requirements for **csvcat** were fairly simple.  It needed to read one or more CSV files and combine them, without repeating the column headers that appeared in each input source.  In some cases, the input data included columns I did not want, so I needed to be able to select the columns to include in the output.  No sort feature was needed, since I was going to import it into a spreadsheet when I was done and I could sort the data after importing it.  To make the program more generally useful, I also included the ability to select the output format using a **csv** module feature called "dialects".
 
@@ -128,15 +128,15 @@ The names of any non-optional arguments to the program appear in the syntax summ
 Options and Their Arguments
 ---------------------------
 
-Following the argument description is a detailed explanation of all of the options to the program.  **CommandLineApp** examines each option handler method to build the option description, including the name of the option, alternative names for the same option, and the name and description of any arguments the option accepts.  There are three variations of option handlers, based on the arguments used by the option. 
+Following the argument description is a detailed explanation of all of the options to the program.  :class:`CommandLineApp` examines each option handler method to build the option description, including the name of the option, alternative names for the same option, and the name and description of any arguments the option accepts.  There are three variations of option handlers, based on the arguments used by the option. 
 
-The simplest kind of option does not take an argument at all, and is used as a "switch" to turn a feature on or off.  The method ``option_handler_skip_headers`` (lines 38-43) is an example of such a switch.  The method takes no argument, so **CommandLineApp** recognizes that the option being defined does not take an argument either.  To create the option name, the prefix is stripped from the method name, and the underscore is converted to a dash (``-``); ``option_handler_skip_headers`` becomes ``--skip-headers``.
+The simplest kind of option does not take an argument at all, and is used as a "switch" to turn a feature on or off.  The method ``option_handler_skip_headers`` (lines 38-43) is an example of such a switch.  The method takes no argument, so :class:`CommandLineApp` recognizes that the option being defined does not take an argument either.  To create the option name, the prefix is stripped from the method name, and the underscore is converted to a dash (``-``); ``option_handler_skip_headers`` becomes ``--skip-headers``.
 
 Other options accept a single argument.  For example, the ``--dialect`` option requires the name of the CSV output dialect.  The method ``option_handler_dialect`` (lines 46-51) takes one argument, called ``name``.  The suggested syntax for the option, as seen in Listing 1, is ``--dialect=name``.  The name of the method's argument is used as the name of the argument to the option in the help text.
 
-The ``-d`` option has the same meaning as ``--dialect``, because ``option_handler_d`` is an alias for ``option_handler_dialect``.  **CommandLineApp** recognizes aliases, and combines the forms in the documentation so the alternative forms ``-d name`` and ``--dialect=name`` are described together.
+The ``-d`` option has the same meaning as ``--dialect``, because ``option_handler_d`` is an alias for ``option_handler_dialect``.  :class:`CommandLineApp` recognizes aliases, and combines the forms in the documentation so the alternative forms ``-d name`` and ``--dialect=name`` are described together.
 
-It is often useful for an option to take multiple arguments, as with ``--columns``.  The user could repeat the option on the command line, but it is more compact to allow them to list multiple values in one argument list.  When **CommandLineApp** sees an option handler method that takes a variable argument list, it treats the corresponding option as accepting a list of arguments.  When the option appears on the command line, the string argument is split on any commas and the resulting list of strings is passed to the option handler method.  
+It is often useful for an option to take multiple arguments, as with ``--columns``.  The user could repeat the option on the command line, but it is more compact to allow them to list multiple values in one argument list.  When :class:`CommandLineApp` sees an option handler method that takes a variable argument list, it treats the corresponding option as accepting a list of arguments.  When the option appears on the command line, the string argument is split on any commas and the resulting list of strings is passed to the option handler method.  
 
 For example, ``option_handler_columns`` (lines 55-60) takes a variable length argument named ``col``.  The option ``--columns`` can be followed by several column numbers, separated by commas.  The option handler is called with the list of values pre-parsed.  In the syntax description, the argument is shown repeating: ``--columns=col[,col...]``.
 
@@ -145,11 +145,11 @@ For all cases, the docstring from the option handler method serves as the help t
 Application-specific Detailed Help
 ----------------------------------
 
-The general syntax and option description information is produced in the same way for all **CommandLineApp** programs.  There are times when an application needs to include additional information in the help output, though, and there are two ways to add such information.
+The general syntax and option description information is produced in the same way for all :class:`CommandLineApp` programs.  There are times when an application needs to include additional information in the help output, though, and there are two ways to add such information.
 
 The first way is by providing examples of how to use the program on the command line.  Although it is optional, including examples of how to apply different combinations of arguments to your program to achieve various results enhances the usefulness of the help as a reference manual.  When the ``EXAMPLES_DESCRIPTION`` class attribute is set, it is used as the source for the examples.  Unlike the other documentation strings, the ``EXAMPLES_DESCRIPTION`` is printed directly without being reformatted. This preserves the indentation and other formatting of the examples, so the user sees an accurate representation of the program's inputs and outputs.
 
-Occasionally, a program may need to include information in its help output which cannot be statically defined in a docstring or derived by **CommandLineApp**.  At the very end of its help, **csvcat** includes a list of available CSV dialects which can be used with the ``--dialect`` option.  Since the list of dialects must be constructed at runtime based on what dialects have been registered with the **csv** module, **csvcat** overrides ``showVerboseHelp()`` to print the list itself (lines 27-35).
+Occasionally, a program may need to include information in its help output which cannot be statically defined in a docstring or derived by :class:`CommandLineApp`.  At the very end of its help, **csvcat** includes a list of available CSV dialects which can be used with the ``--dialect`` option.  Since the list of dialects must be constructed at runtime based on what dialects have been registered with the **csv** module, **csvcat** overrides ``showVerboseHelp()`` to print the list itself (lines 27-35).
 
 Using csvcat
 ------------
@@ -220,7 +220,7 @@ For my project, there were input files with several columns, but only two of the
 Running a CommandLineApp Program
 --------------------------------
 
-Most of the work for **csvcat** is being done in the ``main()`` method.  To invoke the application, however, the caller does not invoke ``main()`` directly.  The program should be started by calling ``run()``, so the options are validated and exceptions from ``main()`` are handled.  The ``run()`` method is one of several methods that are not intended to be overridden by derived classes, since they implement the core features of a command line program.  The source for **CommandLineApp** appears in Listing 3.
+Most of the work for **csvcat** is being done in the ``main()`` method.  To invoke the application, however, the caller does not invoke ``main()`` directly.  The program should be started by calling ``run()``, so the options are validated and exceptions from ``main()`` are handled.  The ``run()`` method is one of several methods that are not intended to be overridden by derived classes, since they implement the core features of a command line program.  The source for :class:`CommandLineApp` appears in Listing 3.
 
 Listing 3
 ~~~~~~~~~
@@ -233,16 +233,16 @@ The available and supported options are examined when the instance is initialize
 
 When the program is run, the first thing it does is use **getopt** to validate the options it has been given.  In ``callGetopt()``, the arguments needed by **getopt** are constructed based on the option handlers discovered for the class.  Options are processed in the order they are passed on the command line, and the option handler method for each option encountered is called.  When an option handler requires an argument that is not provided on the command line, **getopt** detects the error.  When an argument is provided, the option handler is responsible for determining whether the value is the correct type or otherwise valid.  When the argument is not valid, the option handler can raise an exception with an error message to be printed for the user.
 
-After all of the options are handled, the remaining arguments to the program are checked to be sure there are enough to satisfy the requirements, based on the argspec of the ``main()`` function.  The number of arguments is checked explicitly to avoid having to handle a ``TypeError`` if the user does not pass the right number of arguments on the command line.  If **CommandLineApp** depended on catching a ``TypeError`` when it passed too few arguments to ``main()``, it could not tell the difference between a coding error and a user error.  If a mistake inside ``main()`` caused a ``TypeError`` to occur, it might look like the user had passed an incorrect number of arguments to the program.
+After all of the options are handled, the remaining arguments to the program are checked to be sure there are enough to satisfy the requirements, based on the argspec of the ``main()`` function.  The number of arguments is checked explicitly to avoid having to handle a ``TypeError`` if the user does not pass the right number of arguments on the command line.  If :class:`CommandLineApp` depended on catching a ``TypeError`` when it passed too few arguments to ``main()``, it could not tell the difference between a coding error and a user error.  If a mistake inside ``main()`` caused a ``TypeError`` to occur, it might look like the user had passed an incorrect number of arguments to the program.
 
 Error Handling
-~~~~~~~~~~~~~~
+--------------
 
 When an exception is raised during option processing or inside ``main()``, the exception is caught by one of the ``except`` clauses and given to an error handling method.  Subclasses can change the error handling behavior by overriding these methods.
 
 ``KeyboardInterrupt`` exceptions are handled by calling ``handleInterrupt()``.  The default behavior is to print a message that the program has been interrupted and cause the program to exit with an error code.  A subclass could override the method to clean up an in-progress task, background thread, or other operation which otherwise might not be automatically stopped when the ``KeyboardInterrupt`` is received.
 
-When a lower level library tries to exit the program, ``SystemExit`` may be raised.  **CommandLineApp** traps the ``SystemExit`` exception and exits normally, using the exit status taken from the exception.  If the ``force_exit`` attribute of the application is false, ``run()`` returns instead of exiting.  Trapping attempts to exit makes it easier to integrate **CommandLineApp** programs with ``unittest`` or other testing frameworks.  The test can instantiate the application, set ``force_exit`` to a false value, then run it.  If any errors occur, a status code is returned but the test process does not exit.
+When a lower level library tries to exit the program, ``SystemExit`` may be raised.  :class:`CommandLineApp` traps the ``SystemExit`` exception and exits normally, using the exit status taken from the exception.  If the ``force_exit`` attribute of the application is false, ``run()`` returns instead of exiting.  Trapping attempts to exit makes it easier to integrate :class:`CommandLineApp` programs with ``unittest`` or other testing frameworks.  The test can instantiate the application, set ``force_exit`` to a false value, then run it.  If any errors occur, a status code is returned but the test process does not exit.
 
 All other types of exceptions are handled by calling ``handleMainException()`` and passing the exception as an argument.  The default implementation of ``handleMainException()`` (lines 62-70) prints a simple error message based on the exception, unless debugging mode is turned on.  Debugging mode prints the entire traceback for the exception.
 
@@ -253,7 +253,7 @@ All other types of exceptions are handled by calling ``handleMainException()`` a
     'file_does_not_exist.csv'
 
 Option Definitions
-~~~~~~~~~~~~~~~~~~
+------------------
 
 The standard library module **inspect** provides functions for performing introspection operations on classes and objects at runtime.  The API supports basic querying and type checking so it is possible, for example, to get a list of the methods of a class, including all inherited methods.  
 
@@ -283,7 +283,7 @@ The ``option_handler_dialect``, on the other hand, does include an additional ar
     ... Listing2.csvcat.option_handler_dialect)
     (['self', 'name'], None, None, None)
 
-The ``name`` argument is listed in the argspec as a single regular argument.  The result, when a program is run, is that while the options are being processed by **CommandLineApp** and **OptionDef**, the value for ``name`` is passed directly to the option handler method.
+The ``name`` argument is listed in the argspec as a single regular argument.  The result, when a program is run, is that while the options are being processed by :class:`CommandLineApp` and **OptionDef**, the value for ``name`` is passed directly to the option handler method.
 
 The ``option_handler_columns`` method illustrates variable argument handling:
 
@@ -298,9 +298,9 @@ The ``col`` argument from ``option_handler_columns`` is named in the argspec as 
 The other variable argument configuration, using unidentified keyword arguments, does not make sense for an option handler.  The user of the command line program has no standard way to specify named arguments to options, so they are not supported by **OptionDef**.
 
 Status Messages
-~~~~~~~~~~~~~~~
+---------------
 
-In addition to command line option and argument parsing, and error handling, **CommandLineApp** provides a "status message" interface for giving varying levels of feedback to the user.  Status messages are printed by calling ``self.status_message()``.  Each message must indicate the verbose level setting at which the message should be printed.  If the current verbose level is at or higher than the desired level, the message is printed.  Otherwise, it is ignored.  The ``-v``, ``--verbose``, and ``--quiet`` flags let the user control the ``verbose_level`` setting for the application, and are defined in the **CommandLineApp** so that all subclasses inherit them.
+In addition to command line option and argument parsing, and error handling, :class:`CommandLineApp` provides a "status message" interface for giving varying levels of feedback to the user.  Status messages are printed by calling ``self.status_message()``.  Each message must indicate the verbose level setting at which the message should be printed.  If the current verbose level is at or higher than the desired level, the message is printed.  Otherwise, it is ignored.  The ``-v``, ``--verbose``, and ``--quiet`` flags let the user control the ``verbose_level`` setting for the application, and are defined in the :class:`CommandLineApp` so that all subclasses inherit them.
 
 Listing 4
 ~~~~~~~~~
@@ -352,9 +352,9 @@ And the ``--verbose`` option sets the verbose level directly to the desired valu
 Error messages can be printed to the standard error stream using the ``error_message()`` method.  The message is prefixed with the word "ERROR", and error messages are always printed, no matter what verbose level is set.  Most programs will not need to use ``errorMessage()`` directly, because raising an exception is sufficient to have an error message displayed for the user.
 
 CommandLineApp and Inheritance
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------
 
-When creating a suite of related programs, it is usually desirable for all of the programs to use the same options and, in many cases, share other common behavior.  For example, when working with a database the connection and transaction must be managed reliably.  Rather than re-implementing the same database handling code in each program, by using **CommandLineApp**, you can create an intermediate base class for your programs and share a single implementation.  Listing 5 includes a skeleton base class called **SQLiteAppBase** for working with an ``sqlite3`` database in this way.
+When creating a suite of related programs, it is usually desirable for all of the programs to use the same options and, in many cases, share other common behavior.  For example, when working with a database the connection and transaction must be managed reliably.  Rather than re-implementing the same database handling code in each program, by using :class:`CommandLineApp`, you can create an intermediate base class for your programs and share a single implementation.  Listing 5 includes a skeleton base class called **SQLiteAppBase** for working with an ``sqlite3`` database in this way.
 
 Listing 5
 ~~~~~~~~~
@@ -423,13 +423,13 @@ As with ``initdb``, because the base class commits changes to the database after
 Future Work
 -----------
 
-I have been using **CommandLineApp** in my own work for several years now, and continue to find ways to enhance it. The two primary features I would still like to add are the ability to print the help for a command in formats other than plain text, and automatic type conversion for arguments.
+I have been using :class:`CommandLineApp` in my own work for several years now, and continue to find ways to enhance it. The two primary features I would still like to add are the ability to print the help for a command in formats other than plain text, and automatic type conversion for arguments.
 
-It is difficult to prepare attractive printed documentation from plain text help output like what is produced by the current version of **CommandLineApp**.  Parsing the text output directly is not necessarily straightforward, since the embedded help may contain characters or patterns that would confuse a simple parser.  A better solution is to use the option data gathered by introspection to generate output in a format such as DocBook, which could then be converted to PDF or HTML using other tool sets specifically designed for that purpose.  There is a prototype of a program to create DocBook output from an application class, but it is not robust enough to be released - yet.
+It is difficult to prepare attractive printed documentation from plain text help output like what is produced by the current version of :class:`CommandLineApp`.  Parsing the text output directly is not necessarily straightforward, since the embedded help may contain characters or patterns that would confuse a simple parser.  A better solution is to use the option data gathered by introspection to generate output in a format such as DocBook, which could then be converted to PDF or HTML using other tool sets specifically designed for that purpose.  There is a prototype of a program to create DocBook output from an application class, but it is not robust enough to be released - yet.
 
-**CommandLineApp** is based on the older option parsing module, **getopt**, rather than the new **optparse**.  This means it does not support some of the newer features available in **optparse**, such as type conversion for arguments.  Type conversion could be added to **CommandLineApp** by inferring the types from default values for arguments.  The **OptionDef** already discovers default values, but they are not used.  The ``OptionDef.invoke()`` method needs to be updated to look at the default for an option before calling the option handler.  If the default is a type object, it can be used to convert the incoming argument.  If the default is a regular object, the type of the object can be determined using ``type()``.  Then, once the type is known, the argument can be converted.
+:class:`CommandLineApp` is based on the older option parsing module, **getopt**, rather than the new **optparse**.  This means it does not support some of the newer features available in **optparse**, such as type conversion for arguments.  Type conversion could be added to :class:`CommandLineApp` by inferring the types from default values for arguments.  The **OptionDef** already discovers default values, but they are not used.  The ``OptionDef.invoke()`` method needs to be updated to look at the default for an option before calling the option handler.  If the default is a type object, it can be used to convert the incoming argument.  If the default is a regular object, the type of the object can be determined using ``type()``.  Then, once the type is known, the argument can be converted.
 
 Conclusion
 ~~~~~~~~~~
 
-I hope this article encourages you to think about your command line programs in a different light, and to treat them as first class objects.  Using inheritance to share code is so common in other areas of development that it is hardly given a second thought in most cases.  As has been shown with the **SQLiteAppBase** programs, the same technique can be just as powerful when applied to building command line programs, saving development time and testing effort as a result.  **CommandLineApp** has been used as the foundation for dozens of types of programs, and could be just what you need the next time you have to write a new command line program.
+I hope this article encourages you to think about your command line programs in a different light, and to treat them as first class objects.  Using inheritance to share code is so common in other areas of development that it is hardly given a second thought in most cases.  As has been shown with the **SQLiteAppBase** programs, the same technique can be just as powerful when applied to building command line programs, saving development time and testing effort as a result.  :class:`CommandLineApp` has been used as the foundation for dozens of types of programs, and could be just what you need the next time you have to write a new command line program.
