@@ -80,7 +80,7 @@ options(
     
     sphinx = Bunch(
         docroot='.',
-        builddir='docs',
+        builddir='docsbuild',
         sourcedir='docsource',
     ),
     
@@ -171,10 +171,19 @@ def sdist():
     pass
 
 @task
+def clean_docs(options):
+    """Remove the old docs dir.
+    """
+
+@task
 @needs(['cog', 'paver.doctools.html'])
 def html(options):
     """Run sphinx to produce the documentation.
     """
+    docs = path('docs')
+    docs.rmtree()
+    html = path(options.sphinx.docroot) / options.sphinx.builddir / 'html'
+    html.copytree('docs')
     
 
 # @task

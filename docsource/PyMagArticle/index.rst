@@ -37,7 +37,7 @@ Listing 1
 
 ::
 
-	$ python docs/source/PyMagArticle/Listing2.py --help
+	$ python ./docsource/PyMagArticle/Listing2.py --help
 	Concatenate comma separated value files.
 	
 	
@@ -225,7 +225,7 @@ Most of the work for **csvcat** is being done in the ``main()`` method.  To invo
 Listing 3
 ~~~~~~~~~
 
-.. include:: ../../../commandlineapp.py
+.. include:: ../../commandlineapp.py
     :literal:
 
 
