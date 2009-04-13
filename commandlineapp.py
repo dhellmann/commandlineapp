@@ -26,12 +26,10 @@
 
 """Base class for building command line applications.
 
-  The CommandLineApp class makes creating command line applications as
-  simple as defining callbacks to handle options when they appear in
-  'sys.argv'.
+:class:`CommandLineApp` makes creating command line applications as
+simple as defining callbacks to handle options when they appear in
+``sys.argv``.
 """
-
-__module_id__ = "$Id$"
 
 #
 # Import system modules
@@ -144,9 +142,9 @@ class CommandLineApp(object):
     Define a docstring for the class to explain what the program does.
 
     Include descriptions of the command arguments in the docstring for
-    main().
+    ``main()``.
 
-    When the EXAMPLES_DESCRIPTION class attribute is not empty, it
+    When the ``EXAMPLES_DESCRIPTION`` class attribute is not empty, it
     will be printed last in the help message when the user asks for
     help.
     """
@@ -161,8 +159,10 @@ class CommandLineApp(object):
 
     _app_version = None
 
-    def __init__(self, command_line_options=sys.argv[1:]):
+    def __init__(self, command_line_options=None):
         "Initialize CommandLineApp."
+        if command_line_options is None:
+            command_line_options = sys.argv[1:]
         self.command_line_options = command_line_options
         self.before_options_hook()
         self.supported_options = self.scan_for_options()
