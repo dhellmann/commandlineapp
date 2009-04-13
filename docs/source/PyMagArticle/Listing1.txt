@@ -1,0 +1,77 @@
+Concatenate comma separated value files.
+
+
+SYNTAX:
+
+  csvcat [<options>] filename [filename...]
+
+    -c col[,col...], --columns=col[,col...]
+    -d name, --dialect=name
+    --debug
+    -h
+    --help
+    --quiet
+    --skip-headers
+    -v
+    --verbose=level
+
+
+ARGUMENTS:
+
+    The names of comma separated value files, such as might be
+    exported from a spreadsheet or database program.
+
+
+OPTIONS:
+
+    -c col[,col...], --columns=col[,col...]
+        Limit the output to the specified columns. Columns are
+        identified by number, starting with 0.
+
+    -d name, --dialect=name
+        Specify the output dialect name. Defaults to "excel".
+
+    --debug
+        Set debug mode to see tracebacks.
+
+    -h
+        Displays abbreviated help message.
+
+    --help
+        Displays verbose help message.
+
+    --quiet
+        Turn on quiet mode.
+
+    --skip-headers
+        Treat the first line of each file as a header, and only
+        include one copy in the output.
+
+    -v
+        Increment the verbose level. Higher levels are more verbose.
+        The default is 1.
+
+    --verbose=level
+        Set the verbose level.
+
+EXAMPLES:
+
+
+To concatenate 2 files, including all columns and headers:
+
+  $ csvcat file1.csv file2.csv
+
+To concatenate 2 files, skipping the headers in the second file:
+
+  $ csvcat --skip-headers file1.csv file2.csv
+
+To concatenate 2 files, including only the first and third columns:
+
+  $ csvcat --col 0,2 file1.csv file2.csv
+
+
+OUTPUT DIALECTS:
+
+	excel-tab
+	excel
+

@@ -1,0 +1,3 @@
+"To create your application, just make a subclass of CommandLineApp and concentrate on your own code." 
+
+"Trapping attempts to exit makes it easier to integrate CommandLineApp programs with unittest or other testing frameworks."
