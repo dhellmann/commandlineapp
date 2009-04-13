@@ -9,6 +9,7 @@ Contents:
 
    commandlineapp
    PyMagArticle/index
+   history
 
 Indices and tables
 ==================
