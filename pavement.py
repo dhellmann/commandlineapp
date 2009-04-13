@@ -161,7 +161,7 @@ __builtins__['run_script'] = run_script
 
 
 @task
-@needs(['generate_setup', 'minilib', 
+@needs(['html', 'generate_setup', 'minilib', 
         'setuptools.command.sdist'
         ])
 def sdist():
