@@ -2,6 +2,9 @@
 History
 #######
 
+3.0.5
+    - Fixed packaging problems that prevented installation with easy_install and pip.
+
 3.0.4
     - Switched to sphinx for documentation.
 

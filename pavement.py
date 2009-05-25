@@ -16,11 +16,17 @@ import paver.setuputils
 paver.setuputils.install_distutils_tasks()
 import paver.doctools
 
-import nose
+try:
+    import nose
+except ImportError:
+    # We may not have nose during installation,
+    # but that's OK because we just import it
+    # to enable the test tasks.
+    pass
 
 # What project are we building?
 PROJECT = 'CommandLineApp'
-VERSION = '3.0.4'
+VERSION = '3.0.5'
 # The sphinx templates expect the VERSION in the shell environment
 os.environ['VERSION'] = VERSION
 
@@ -82,6 +88,12 @@ options(
         docroot='.',
         builddir='docsbuild',
         sourcedir='docsource',
+    ),
+    
+    # Tell Paver to include extra parts that we use
+    # but it doesn't ship in the minilib by default.
+    minilib = Bunch(
+        extra_files=['doctools'],
     ),
     
 )
@@ -176,15 +188,23 @@ def clean_docs(options):
     """
 
 @task
-@needs(['cog', 'paver.doctools.html'])
 def html(options):
     """Run sphinx to produce the documentation.
     """
+    # First, fix up our path so cog can find the source
+    current_path = os.environ.get('PYTHONPATH', '')
+    updated_path = os.pathsep.join([os.getcwd(), current_path])
+    os.environ['PYTHONPATH'] = updated_path
+
+    paver.doctools.cog(options)
+    paver.doctools.html(options)
+    
+    # Install the docs
     docs = path('docs')
     docs.rmtree()
     html = path(options.sphinx.docroot) / options.sphinx.builddir / 'html'
     html.copytree('docs')
-    
+    return
 
 # @task
 # def docs():
