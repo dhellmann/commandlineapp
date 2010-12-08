@@ -374,7 +374,9 @@ class CommandLineApp(object):
                 # the argument count ourself.
                 num_args_ok = False
                 argspec = inspect.getargspec(self.main)
-                expected_arg_count = len(argspec[0]) - 1
+                defaults = argspec[3]
+                # We take in count defaults for arguments.
+                expected_arg_count = len(argspec[0]) - 1 - len(defaults or [])
 
                 if argspec[1] is not None:
                     num_args_ok = True
