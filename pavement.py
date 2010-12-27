@@ -26,7 +26,7 @@ except ImportError:
 
 # What project are we building?
 PROJECT = 'CommandLineApp'
-VERSION = '3.0.5'
+VERSION = '3.0.6'
 # The sphinx templates expect the VERSION in the shell environment
 os.environ['VERSION'] = VERSION
 
