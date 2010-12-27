@@ -2,6 +2,10 @@
 History
 #######
 
+3.0.6
+
+    - Bug fix from Cezary Statkiewicz for handling default arguments.
+
 3.0.5
     - Fixed packaging problems that prevented installation with easy_install and pip.
 
