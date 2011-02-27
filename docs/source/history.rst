@@ -2,6 +2,10 @@
 History
 #######
 
+dev
+
+    - Repackage the documentation
+
 3.0.6
 
     - Bug fix from Cezary Statkiewicz for handling default arguments.

@@ -2,5 +2,4 @@ include setup.py
 include paver-minilib.zip
 include ChangeLog
 include test_commandlineapp.py
-recursive-include docs *.html *.txt *.css *.js *.png
-recursive-include docsource *.rst *.txt *.py
+recursive-include docs *.html *.txt *.css *.js *.png *.rst *.py

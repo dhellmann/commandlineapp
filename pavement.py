@@ -85,9 +85,9 @@ options(
     ),
     
     sphinx = Bunch(
-        docroot='.',
-        builddir='docsbuild',
-        sourcedir='docsource',
+        docroot='docs',
+        builddir='build',
+        sourcedir='source',
     ),
     
     # Tell Paver to include extra parts that we use
@@ -182,10 +182,6 @@ def sdist():
     """
     pass
 
-@task
-def clean_docs(options):
-    """Remove the old docs dir.
-    """
 
 @task
 def html(options):
@@ -198,16 +194,4 @@ def html(options):
 
     paver.doctools.cog(options)
     paver.doctools.html(options)
-    
-    # Install the docs
-    docs = path('docs')
-    docs.rmtree()
-    html = path(options.sphinx.docroot) / options.sphinx.builddir / 'html'
-    html.copytree('docs')
     return
-
-# @task
-# def docs():
-#     path('docs').rmtree()
-#     sh('epydoc -v --docformat restructuredtext --output docs commandlineapp.py')
-#     return
