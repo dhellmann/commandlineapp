@@ -7,5 +7,4 @@ CommandLineApp.egg-info
 docs/build
 .DS_Store
 */.DS_Store
-docsbuild
-docs
+dist

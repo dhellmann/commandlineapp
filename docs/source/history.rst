@@ -2,7 +2,7 @@
 History
 #######
 
-dev
+3.0.7
 
     - Repackage the documentation
 

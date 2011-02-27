@@ -26,9 +26,7 @@ except ImportError:
 
 # What project are we building?
 PROJECT = 'CommandLineApp'
-VERSION = '3.0.6'
-# The sphinx templates expect the VERSION in the shell environment
-os.environ['VERSION'] = VERSION
+VERSION = '3.0.7'
 
 # Scan the input for package information
 # to grab any data files (text, images, etc.) 
@@ -79,10 +77,6 @@ options(
         zip_safe=False,
 
         ),
-    
-    sdist = Bunch(
-        dist_dir=os.path.expanduser('~/Desktop'),
-    ),
     
     sphinx = Bunch(
         docroot='docs',
