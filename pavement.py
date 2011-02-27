@@ -189,3 +189,8 @@ def html(options):
     paver.doctools.cog(options)
     paver.doctools.html(options)
     return
+
+@task
+def installwebsite(options):
+    html(options)
+    sh('rsync --rsh=ssh --archive --delete --verbose docs/build/html/* www.doughellmann.com:/var/www/doughellmann/DocumentRoot/docs/commandlineapp/')
