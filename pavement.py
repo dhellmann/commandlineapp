@@ -59,7 +59,7 @@ options(
                         'Environment :: Console',
                         ],
 
-        platforms = ('Any',),
+        platforms = ['Any'],
 
         url = 'http://www.doughellmann.com/projects/%s/' % PROJECT,
         download_url = 'http://www.doughellmann.com/downloads/%s-%s.tar.gz' % \
